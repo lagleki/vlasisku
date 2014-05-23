@@ -404,7 +404,7 @@ class Root(object):
         self.note_stems = {}
 
         for type, _ in TYPES:
-            for valsi in xml.findall('//valsi'):
+            for valsi in xml.findall('.//valsi'):
                 if valsi.get('type') == type:
                     entry = Entry(self)
                     entry.type = type
@@ -416,7 +416,7 @@ class Root(object):
 
                     for child in valsi.getchildren():
                         tag, text = child.tag, child.text
-                        processors.get(tag, lambda: None)(entry, text)
+                        processors.get(tag, lambda a,b: None)(entry, text)
 
                     self.entries[entry.word] = entry
 
@@ -461,7 +461,7 @@ class Root(object):
         self.glosses = []
         self.gloss_stems = {}
         for type, _ in TYPES:
-            for word in xml.findall('//nlword'):
+            for word in xml.findall('.//nlword'):
                 entry = self.entries[word.get('valsi')]
                 if entry.type == type:
                     gloss = Gloss()

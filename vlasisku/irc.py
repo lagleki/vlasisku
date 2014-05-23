@@ -53,12 +53,12 @@ class BotBase(IRCClient):
 class FactoryBase(ReconnectingClientFactory):
     server = 'irc.freenode.net'
     port = 6667
-    channels = '#lojban,#ckule,#jbopre,#vlalinkei'
+    channels = '#ckule'
 
 
 class WordBot(BotBase):
 
-    nickname = 'valsi'
+    nickname = 'valsi2'
 
     def query(self, target, query):
         fields = 'affix|class|type|notes|cll|url|components'
