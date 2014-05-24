@@ -26,7 +26,7 @@ def runbots():
     valsi = WordBotFactory()
 
     log.startLogging(sys.stdout)
-    # reactor.connectTCP(gerna.server, gerna.port, gerna)
+    reactor.connectTCP(gerna.server, gerna.port, gerna)
     reactor.connectTCP(valsi.server, valsi.port, valsi)
     reactor.run()
 
