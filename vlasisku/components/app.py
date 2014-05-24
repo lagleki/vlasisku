@@ -20,6 +20,7 @@ def index():
     classes = set(e.grammarclass for e in db.entries.itervalues()
                                  if e.grammarclass)
     scales = db.class_scales
+    root = request.script_root
     return render_response('index.html', locals())
 
 

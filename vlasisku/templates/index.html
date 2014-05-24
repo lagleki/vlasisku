@@ -11,8 +11,8 @@
         <dl>
           <py:for each="type, definition in types">
             <dt py:choose="' ' in type">
-              <a py:when="True" href='./"$type"'>$type</a>
-              <a py:when="False" href="$type">$type</a>
+              <a py:when="True" href='$root/"$type"'>$type</a>
+              <a py:when="False" href="$root/$type">$type</a>
             </dt>
             <dd>$definition</dd>
           </py:for>
@@ -24,7 +24,7 @@
         <p>
           <py:for each="grammarclass in sorted(classes)"
                   py:with="scale = scales.get(grammarclass, 0.7)">
-            <a href="$grammarclass"
+            <a href="$root/$grammarclass"
                style="font-size: ${scale}em"
                class="${'loud' if scale >= 1 else 'quiet'}">$grammarclass</a>
           </py:for>
