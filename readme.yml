@@ -3,16 +3,15 @@ Dependencies:
     - The packages in requirements.txt
 
 Recommended for developers:
-    - bzr
+    - git
     - pip
     - virtualenv
     - virtualenvwrapper
     - nose
-    - rudolf
 
 
 Installation for developers: |
-    bzr branch lp:vlasisku
+    git clone https://github.com/lojban/vlasisku
     cd vlasisku
     wget 'http://jbovlaste.lojban.org/export/xml-export.html?lang=en' \
          -O vlasisku/data/jbovlaste.xml
@@ -24,10 +23,16 @@ Installation for developers: |
     pip install -r requirements.txt
 
     # This takes some 20 seconds the first time
+    # and must be done whenever the jbovlaste export is changed
     ./manage.py runserver
 
+    # Run the IRC bots
+    # (runserver first to import the definitions)
+    # change the channels and nicknames in vlasisku/irc.py
+    ./manage.py runbots
+
     # Run tests
-    nosetests -v --with-doctest --with-color
+    nosetests -v --with-doctest
 
     # When finished
     deactivate
@@ -35,12 +40,19 @@ Installation for developers: |
     # To reactivate the environment
     workon vlasisku
 
+To use with a web server:
+    - Point the top-level URL for vlasisku at app.wsgi
+        - change the paths to point to your vlasisku installation
+    - A sample site configuration for Apache is provided
+        - again, change the paths
+    - If you intend to use Fabric:
+        - Make sure you change the hostname in fabfile.py
+
 
 # With this you don't need all them options to nosetests
 ~/.noserc: |
     [nosetests]
     verbosity=2
-    with-color=1
     with-doctest=1
 
 
