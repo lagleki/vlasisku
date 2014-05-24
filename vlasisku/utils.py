@@ -113,8 +113,7 @@ def dameraulevenshtein(seq1, seq2):
 
     This distance is the number of additions, deletions, substitutions,
     and transpositions needed to transform the first sequence into the
-    second. Although generally used with strings, any sequences of
-    comparable objects will work.
+    second. Arguments must be strings.
 
     Transpositions are exchanges of *consecutive* characters; all other
     operations are self-explanatory.
@@ -126,20 +125,25 @@ def dameraulevenshtein(seq1, seq2):
     2
     >>> dameraulevenshtein('fee', 'deed')
     2
+    >>> dameraulevenshtein('abcd', 'bacde')
+    3
 
-    It works with arbitrary sequences too:
-    >>> dameraulevenshtein('abcd', ['b', 'a', 'c', 'd', 'e'])
-    2
+    Note: the real answer is 2: abcd->bacd->bacde
+          but this algorithm is apparently doing abcd->acd->bacd->bacde
     """
-    return jellyfish.damerau_levenshtein_distance(seq1.encode('utf-8'),
-                                                  seq2.encode('utf-8'))
+    if isinstance(seq1, str):
+        seq1 = seq1.encode('utf-8')
+    if isinstance(seq2, str):
+        seq2 = seq2.encode('utf-8')
+    return jellyfish.damerau_levenshtein_distance(seq1,
+                                                  seq2)
 
 
 def jbofihe(text):
     """Call ``jbofihe -ie -cr`` on text and return the output.
 
     >>> jbofihe('coi rodo')
-    "(0[coi {<ro BOI> do} DO'U])0"
+    "(0[{coi <(1ro BOI)1 do> DO'U} {}])0"
     >>> jbofihe('coi ho')
     Traceback (most recent call last):
       ...

@@ -4,7 +4,8 @@ from nose.tools import istest as test, \
                        assert_equal as same, \
                        assert_not_equal as differ
 
-from vlasisku import app, database
+from vlasisku import app
+from vlasisku.extensions import database
 from vlasisku.utils import compound2affixes, parse_query
 from vlasisku.database import tex2html, braces2links
 

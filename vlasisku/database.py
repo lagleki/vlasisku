@@ -224,8 +224,8 @@ class Root(object):
     def query(self, query):
         """Query database with query language.
 
-        >>> from vlasisku import db
-        >>> len(db.query('class:UI4')['matches'])
+        >>> from vlasisku.extensions import database
+        >>> len(database.root.query('class:UI4')['matches'])
         6
 
         """
