@@ -1,2 +1,4 @@
 vlasisku/data/jbovlaste.xml
 vlasisku/data/db.pickle
+*.swp
+*.pyc
