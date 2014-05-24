@@ -70,6 +70,8 @@ def tex2html(tex):
     def puho(m):
         format = 'inchoative\n<span style="font-family: monospace">%s</span>'
         return format % m.group(1)
+    if tex is None:
+        tex = ''
     tex = re.sub(r'\$(.+?)\$', math, tex)
     tex = re.sub(r'\\(emph|textbf)\{(.+?)\}', typography, tex)
     tex = re.sub(r'(?![|>\-])\s\s+(.+)', lines, tex)
@@ -443,6 +445,8 @@ class Root(object):
                 entry.cll.append((section, link % tuple(path)))
 
     def _process_definition(self, entry, text):
+        if text is None:
+            text = ""
         entry.definition = tex2html(text)
         entry.textdefinition = strip_html(entry.definition)
         tokens = re.findall(r"[\w']+", text, re.UNICODE)
