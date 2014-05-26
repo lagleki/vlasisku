@@ -22,7 +22,7 @@ def runbots():
 
     from vlasisku.irc import GrammarBotFactory, WordBotFactory
 
-    # gerna = GrammarBotFactory()
+    gerna = GrammarBotFactory()
     valsi = WordBotFactory()
 
     log.startLogging(sys.stdout)
