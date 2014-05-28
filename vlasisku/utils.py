@@ -131,12 +131,8 @@ def dameraulevenshtein(seq1, seq2):
     Note: the real answer is 2: abcd->bacd->bacde
           but this algorithm is apparently doing abcd->acd->bacd->bacde
     """
-    if isinstance(seq1, str):
-        seq1 = seq1.encode('utf-8')
-    if isinstance(seq2, str):
-        seq2 = seq2.encode('utf-8')
-    return jellyfish.damerau_levenshtein_distance(seq1,
-                                                  seq2)
+    return jellyfish.damerau_levenshtein_distance(seq1.encode('utf-8'),
+                                                  seq2.encode('utf-8'))
 
 
 def jbofihe(text):
