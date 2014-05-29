@@ -70,12 +70,15 @@ def tex2html(tex):
     def puho(m):
         format = 'inchoative\n<span style="font-family: monospace">%s</span>'
         return format % m.group(1)
+    def quotes(m):
+        return '&#147;%s&#148;' % m.group(2)
     if tex is None:
         tex = ''
     tex = re.sub(r'\$(.+?)\$', math, tex)
     tex = re.sub(r'\\(emph|textbf)\{(.+?)\}', typography, tex)
     tex = re.sub(r'(?![|>\-])\s\s+(.+)', lines, tex)
     tex = re.sub(r'inchoative\s\s+(----.+)', puho, tex)
+    tex = re.sub(r"(``|'')(.+?)''", quotes, tex)
     return tex
 
 
