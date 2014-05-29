@@ -11,12 +11,12 @@
       <link rel="stylesheet" href="${url_for('.static', filename='blueprint/screen.css')}" type="text/css" media="screen, projection"/>
       <link rel="stylesheet" href="${url_for('.static', filename='blueprint/print.css')}" type="text/css" media="print"/>
       <![CDATA[<!--[if lt IE 8]><link rel="stylesheet" href="${url_for('.static', filename='blueprint/ie.css')}" type="text/css" media="screen, projection"><![endif]-->]]>
-      <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.1/build/grids/grids-min.css"/>
+      <link rel="stylesheet" type="text/css" href="${url_for('.static', filename='grids-min.css')}"/>
       <link rel="stylesheet" href="${url_for('.static', filename='tipTip.css')}" type="text/css" media="screen, projection, print"/>
       <link rel="stylesheet" href="${url_for('.static', filename='jquery.autocomplete.css')}" type="text/css" media="screen, projection, print"/>
       <link rel="stylesheet" href="${url_for('.static', filename='custom.css')}" type="text/css" media="screen, projection, print"/>
       <link rel="search" type="application/opensearchdescription+xml" href="${url_for('opensearch.opensearch')}" title="Lojban dictionary"/>
-      <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"/>
+      <script type="text/javascript" src="${url_for('.static', filename='jquery.min.js')}"/>
       <script type="text/javascript" src="${url_for('.static', filename='jquery.tipTip.minified.js')}"/>
       <script type="text/javascript" src="${url_for('.static', filename='jquery.autocomplete.pack.js')}"/>
       <script type="text/javascript" src="${url_for('general.javascript')}"/>
