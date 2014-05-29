@@ -6,6 +6,7 @@ from __future__ import with_statement
 from flask.ext.script import Manager
 
 from vlasisku import app
+app.debug = True
 
 
 manager = Manager(app)
@@ -51,16 +52,18 @@ def shell_context():
 
 
 @manager.command
-def updatedb():
-    """Export and index a new database from jbovlaste."""
+def updatedb(session_cookie):
+    """Export and index a new database from jbovlaste. Requires JVS session cookie."""
 
     from contextlib import closing
-    from urllib2 import urlopen
+    import urllib2
     import xml.etree.cElementTree as etree
     import os
 
+    opener = urllib2.build_opener()
+    opener.addheaders.append(('Cookie', 'jbovlastesessionid=%s' % session_cookie))
     url = 'http://jbovlaste.lojban.org/export/xml-export.html?lang=en'
-    with closing(urlopen(url)) as data:
+    with closing(opener.open(url)) as data:
         xml = etree.parse(data)
         assert xml.getroot().tag == 'dictionary'
         with open('vlasisku/data/jbovlaste.xml', 'w') as file:
