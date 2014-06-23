@@ -9,10 +9,10 @@
       <div id="types" class="yui-u first">
         <h2>Types</h2>
         <dl>
-          <py:for each="type, definition in types">
+          <py:for each="type, definition, name in types">
             <dt py:choose="' ' in type">
-              <a py:when="True" href='$root/"$type"'>$type</a>
-              <a py:when="False" href="$root/$type">$type</a>
+              <a py:when="True" href='$root/"$type"'>$name</a>
+              <a py:when="False" href="$root/$type">$name</a>
             </dt>
             <dd>$definition</dd>
           </py:for>

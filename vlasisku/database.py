@@ -16,15 +16,22 @@ import yaml
 from vlasisku.models import Entry, Gloss
 from vlasisku.utils import parse_query, ignore, unique
 
-
-TYPES = (('gismu', 'Root words.'),
-         ('cmavo', 'Particles.'),
-         ('cmavo cluster', 'Particle combinations.'),
-         ('lujvo', 'Compound words.'),
-         ("fu'ivla", 'Loan words.'),
-         ('experimental gismu', 'Non-standard root words.'),
-         ('experimental cmavo', 'Non-standard particles.'),
-         ('cmene', 'Names.'))
+# egrep --only-matching 'type="([^"]*)"' vlasisku/data/jbovlaste.xml | sort | uniq -c
+TYPES = (
+         ('gismu', 'Root words.')                              ,
+         ('cmavo', 'Particles.')                               ,
+         ('cmavo-compound', 'Particle combinations.')          ,
+         ('lujvo', 'Compound words.')                          ,
+         ('experimental gismu', 'Non-standard root words.')    ,
+         ('experimental cmavo', 'Non-standard particles.')     ,
+         ("fu'ivla", 'Loan words.')                            ,
+         ('cmene', 'Names.')                                   ,
+         ('bu-letteral', 'Letters.')                           ,
+         ('zei-lujvo', 'Compound words with ZEI.')             ,
+         ('obsolete cmene', 'Obsolete names.')                 ,
+         ("obsolete fu'ivla", 'Obsolete loan words.')          ,
+         ('obsolete zei-lujvo', 'Obsolete ZEI compound words.')
+         )
 
 
 stem = Stemmer('english').stemWord
