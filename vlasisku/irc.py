@@ -59,10 +59,10 @@ class FactoryBase(ReconnectingClientFactory):
 
 class WordBot(BotBase):
 
-    nickname = 'valsi2'
+    nickname = 'vlaste'
 
     def query(self, target, query):
-        fields = 'affix|class|type|notes|cll|url|components'
+        fields = 'affix|class|type|notes|cll|url|components|lujvo'
 
         if query == 'help!':
             self.msg(target, '<query http://tiny.cc/query-format > '
@@ -75,14 +75,23 @@ class WordBot(BotBase):
             field = match.group('field')
             query = re.sub(r'\s\(.+?\)$', '', query)
 
-        url = 'http://vlasisku.lojban.org/%s' % url_quote_plus(query)
+        if field == 'lujvo':
+            try:
+                lujvos = jvocuhadju(query)
+                tanru = query
+                query = lujvos[0]
+            except ValueError, e:
+                self.msg(target, 'error: %s' % e)
+                return
+
+        url = 'http://alexburka.com/vlasisku/%s' % url_quote_plus(query)
         results = database.root.query(query)
 
         entry = results['entry']
         if not entry and len(results['matches']) == 1:
             entry = results['matches'].pop()
 
-        if entry or field == 'components':
+        if entry or field in ['components', 'lujvo']:
             case = lambda x: field == x
             if case('definition'):
                 data = entry.textdefinition.encode('utf-8')
@@ -104,6 +113,11 @@ class WordBot(BotBase):
                                 if len(a) != 1
                                 for e in database.root.entries.itervalues()
                                 if a in e.searchaffixes)
+            elif case('lujvo'):
+                data = ', '.join(lujvos)
+                if entry:
+                    data += ' (defined as %s = %s)' % (query, entry.textdefinition.encode('utf-8'))
+                entry = tanru
 
             data = data or '(none)'
             if field == 'definition':
@@ -130,6 +144,22 @@ class WordBot(BotBase):
                                            else '',
                                        data))
         else:
+            if field not in ['components', 'lujvo']:
+                rafsi = compound2affixes(query)
+                try:
+                    if len(rafsi) > 0:
+                        tanru = [e.word for a in rafsi
+                                        if len(a) != 1
+                                        for e in database.root.entries.itervalues()
+                                        if a in e.searchaffixes]
+                        lujvo = jvocuhadju(' '.join(tanru))[0]
+                        if lujvo != query:
+                            if field != 'definition':
+                                return self.query(target, '%s (%s)' % (lujvo, field))
+                            else:
+                                return self.query(target, lujvo)
+                except:
+                    pass
             self.msg(target, 'no results. %s' % url)
 
 class WordBotFactory(FactoryBase):
@@ -138,11 +168,11 @@ class WordBotFactory(FactoryBase):
 
 class GrammarBot(BotBase):
 
-    nickname = 'gerna'
+    nickname = 'tcepru'
 
     def query(self, target, query):
         try:
-            response = jbofihe(query)
+            response = yaccparser(query)
         except ValueError, e:
             response = str(e)
 
