@@ -16,7 +16,8 @@ class BotBase(IRCClient):
     def signedOn(self):
         log.msg('* Logged on')
         self.factory.resetDelay()
-        self.join(self.factory.channels)
+        for c in self.factory.channels:
+            self.join(c)
 
     # The inherited implementation passes notices to privmsg, causing upset.
     def noticed(self, user, channel, message):
@@ -53,7 +54,7 @@ class BotBase(IRCClient):
 class FactoryBase(ReconnectingClientFactory):
     server = 'irc.freenode.net'
     port = 6667
-    channels = '#ckule'
+    channels = ['#lojban', '#ckule', '#balningau']
 
 
 class WordBot(BotBase):
