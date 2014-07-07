@@ -8,7 +8,7 @@ from twisted.words.protocols.irc import IRCClient
 from werkzeug import url_quote_plus
 
 from vlasisku import database
-from vlasisku.utils import jbofihe, yaccparser, jvocuhadju, compound2affixes
+from vlasisku.utils import jbofihe, jvocuhadju, compound2affixes
 
 
 class BotBase(IRCClient):
