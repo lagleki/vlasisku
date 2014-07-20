@@ -54,12 +54,12 @@ class BotBase(IRCClient):
 class FactoryBase(ReconnectingClientFactory):
     server = 'irc.freenode.net'
     port = 6667
-    channels = ['#lojban', '#ckule', '#balningau']
+    channels = ['#sampre']
 
 
 class WordBot(BotBase):
 
-    nickname = 'vlaste'
+    nickname = 'vlaste2'
 
     def query(self, target, query):
         fields = 'affix|class|type|notes|cll|url|components|lujvo'
@@ -109,10 +109,7 @@ class WordBot(BotBase):
                 data = url
             elif case('components'):
                 entry = query
-                data = ' '.join(e.word for a in compound2affixes(query)
-                                if len(a) != 1
-                                for e in database.root.entries.itervalues()
-                                if a in e.searchaffixes)
+                data = ' '.join(compound2affixes(query, True))
             elif case('lujvo'):
                 data = ', '.join(lujvos)
                 if entry:
@@ -168,7 +165,7 @@ class WordBotFactory(FactoryBase):
 
 class GrammarBot(BotBase):
 
-    nickname = 'tcepru'
+    nickname = 'tcepru2'
 
     def query(self, target, query):
         try:
