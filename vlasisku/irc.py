@@ -142,8 +142,8 @@ class WordBot(BotBase):
                                        data))
         else:
             if field not in ['components', 'lujvo']:
-                rafsi = compound2affixes(query)
                 try:
+                    rafsi = compound2affixes(query)
                     if len(rafsi) > 0:
                         tanru = [e.word for a in rafsi
                                         if len(a) != 1
