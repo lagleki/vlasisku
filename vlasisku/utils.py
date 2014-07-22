@@ -62,12 +62,14 @@ from collections import namedtuple
 CamxesOptions = namedtuple('CamxesOptions', ['rule', 'transformer'])
 def compound2affixes(compound, expand=False):
     """Split a lujvo into rafsi"""
-    print 'Using camxes!'
-    if expand:
-        a, _ = camxes.do_parse(compound, CamxesOptions('lujvo', 'lujvo-expand'))
-    else:
-        a, _ = camxes.do_parse(compound, CamxesOptions('lujvo', 'lujvo-break'))
-    return a
+    try:
+        if expand:
+            a, _ = camxes.do_parse(compound, CamxesOptions('lujvo', 'lujvo-expand'))
+        else:
+            a, _ = camxes.do_parse(compound, CamxesOptions('lujvo', 'lujvo-break'))
+        return a
+    except:
+        return []
 
 def old_compound2affixes(compound):
     """Split a compound word into affixes and glue."""
