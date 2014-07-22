@@ -34,8 +34,10 @@ class BotBase(IRCClient):
         # PM?
         if channel == self.nickname:
             target = nick
+            private = True
         else:
             target = channel
+            private = False
 
         query = None
         if target != channel:
@@ -49,7 +51,7 @@ class BotBase(IRCClient):
 
         if query:
             log.msg('<%(nick)s> %(message)s' % locals())
-            self.query(target, query)
+            self.query(target, query, private)
 
 class FactoryBase(ReconnectingClientFactory):
     server = 'irc.freenode.net'
@@ -61,7 +63,7 @@ class WordBot(BotBase):
 
     nickname = 'valsi'
 
-    def query(self, target, query):
+    def query(self, target, query, private):
         fields = 'affix|class|type|notes|cll|url|components|lujvo'
 
         if query == 'help!':
@@ -136,9 +138,12 @@ class WordBot(BotBase):
                       +results['types']
                       +results['definitions']
                       +results['notes'])
-            data = ', '.join(map(str, matches[:10]))
-            if len(results['matches']) > 10:
-                data += '…'
+            if private:
+                data = ', '.join(map(str, matches))
+            else:
+                data = ', '.join(map(str, matches[:10]))
+                if len(results['matches']) > 10:
+                    data += '…'
             self.msg(target, format % (len(results['matches']),
                                        's' if len(results['matches']) != 1
                                            else '',
@@ -155,9 +160,9 @@ class WordBot(BotBase):
                         lujvo = jvocuhadju(' '.join(tanru))[0]
                         if lujvo != query:
                             if field != 'definition':
-                                return self.query(target, '%s (%s)' % (lujvo, field))
+                                return self.query(target, '%s (%s)' % (lujvo, field), private)
                             else:
-                                return self.query(target, lujvo)
+                                return self.query(target, lujvo, private)
                 except:
                     pass
             self.msg(target, 'no results. %s' % url)
