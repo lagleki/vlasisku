@@ -40,6 +40,11 @@ class Entry(object):
     #: Plain text notes.
     textnotes = None
 
+    #: Author's jbovlaste username
+    username = None
+    #: Author's real name (if available)
+    realname = None
+
     #: The :class:`~vlasisku.database.Root` instance this entry is in.
     db = None
 

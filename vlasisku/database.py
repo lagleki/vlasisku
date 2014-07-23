@@ -409,7 +409,8 @@ class Root(object):
         processors = {'rafsi': self._process_rafsi,
                       'selmaho': self._process_selmaho,
                       'definition': self._process_definition,
-                      'notes': self._process_notes}
+                      'notes': self._process_notes,
+                      'user': self._process_user}
 
         self.entries = OrderedDict()
         self.definition_stems = {}
@@ -428,7 +429,7 @@ class Root(object):
 
                     for child in valsi.getchildren():
                         tag, text = child.tag, child.text
-                        processors.get(tag, lambda a,b: None)(entry, text)
+                        processors.get(tag, lambda a,b: None)(entry, child)
 
                     self.entries[entry.word] = entry
 
@@ -437,39 +438,45 @@ class Root(object):
                 entry.notes = braces2links(entry.notes, self.entries)
 
 
-    def _process_rafsi(self, entry, text):
-        entry.affixes.append(text)
-        entry.searchaffixes.append(text)
+    def _process_rafsi(self, entry, child):
+        entry.affixes.append(child.text)
+        entry.searchaffixes.append(child.text)
 
-    def _process_selmaho(self, entry, text):
-        entry.grammarclass = text
+    def _process_selmaho(self, entry, child):
+        entry.grammarclass = child.text
         for grammarclass, terminator in self.terminators.iteritems():
-            if text == grammarclass:
+            if child.text == grammarclass:
                 entry.terminator = terminator
-            if text == terminator:
+            if child.text == terminator:
                 entry.terminates.append(grammarclass)
-        if text in self.cll:
-            for path in self.cll[text]:
+        if child.text in self.cll:
+            for path in self.cll[child.text]:
                 section = '%s.%s' % tuple(path)
                 link = 'http://dag.github.io/cll/%s/%s/'
                 entry.cll.append((section, link % tuple(path)))
 
-    def _process_definition(self, entry, text):
-        if text is None:
-            text = ""
-        entry.definition = tex2html(text)
+    def _process_definition(self, entry, child):
+        if child.text is None:
+            child.text = ""
+        entry.definition = tex2html(child.text)
         entry.textdefinition = strip_html(entry.definition)
-        tokens = re.findall(r"[\w']+", text, re.UNICODE)
+        tokens = re.findall(r"[\w']+", child.text, re.UNICODE)
         for token in set(tokens):
             add_stems(token, self.definition_stems, entry)
 
-    def _process_notes(self, entry, text):
-        entry.notes = tex2html(text)
+    def _process_notes(self, entry, child):
+        entry.notes = tex2html(child.text)
         entry.textnotes = strip_html(entry.notes)
-        tokens = re.findall(r"[\w']+", text, re.UNICODE)
+        tokens = re.findall(r"[\w']+", child.text, re.UNICODE)
         for token in set(tokens):
             add_stems(token, self.note_stems, entry)
 
+    def _process_user(self, entry, child):
+        entry.username = child.find('username').text
+        try:
+            entry.realname = child.find('realname').text
+        except:
+            entry.realname = '[Unknown]'
 
     def _load_glosses(self, xml):
         self.glosses = []

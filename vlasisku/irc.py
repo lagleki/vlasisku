@@ -64,7 +64,7 @@ class WordBot(BotBase):
     nickname = 'vlaste2'
 
     def query(self, target, query, private):
-        fields = 'affix|class|type|notes|cll|url|components|lujvo'
+        fields = 'affix|class|type|notes|cll|url|finti|components|lujvo'
 
         if query == 'help!':
             self.msg(target, '<query http://tiny.cc/query-format > '
@@ -109,6 +109,8 @@ class WordBot(BotBase):
                 data = '  '.join(link for (chap, link) in entry.cll)
             elif case('url'):
                 data = url
+            elif case('finti'):
+                data = '%s (%s)' % (entry.realname, entry.username)
             elif case('components'):
                 entry = query
                 data = ' '.join(compound2affixes(query, True))
