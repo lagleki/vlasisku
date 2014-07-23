@@ -110,7 +110,7 @@ class WordBot(BotBase):
             elif case('url'):
                 data = url
             elif case('finti'):
-                data = '%s (%s)' % (entry.realname, entry.username)
+                data = entry.username
             elif case('components'):
                 entry = query
                 data = ' '.join(compound2affixes(query, True))
