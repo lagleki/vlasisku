@@ -352,7 +352,8 @@ class Root(object):
         return (e for q in queries
                   for e in self.entries.itervalues()
                   if e not in exclude
-                  if q == e.grammarclass)
+                  if e.grammarclass is not None
+                  if fnmatch(e.grammarclass, q))
 
     @selector
     def matches_type(self, queries, exclude):
