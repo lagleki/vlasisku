@@ -270,6 +270,9 @@ class Root(object):
             notes = self.matches_notes(parsed_query['all'], matches)
             matches.update(notes)
 
+	    authors = self.matches_author(parsed_query['all'], matches)
+	    matches.update(authors)
+
         else:
             words = self.matches_word(parsed_query['word'])
             matches.update(words)
@@ -291,6 +294,9 @@ class Root(object):
 
             notes = self.matches_notes(parsed_query['notes'], matches)
             matches.update(notes)
+
+	    authors = self.matches_author(parsed_query['finti'], matches)
+	    matches.update(authors)
 
         if parsed_query['word']:
             matches = set(e for e in self.matches_word(parsed_query['word'])
@@ -314,6 +320,9 @@ class Root(object):
         if parsed_query['notes']:
             matches = set(e for e in self.matches_notes(parsed_query['notes'])
                             if e in matches)
+        if parsed_query['finti']:
+            matches = set(e for e in self.matches_author(parsed_query['finti'])
+                            if e in matches)
 
         words = [e for e in words if e in matches]
         glosses = [g for g in glosses if g.entry in matches]
@@ -322,6 +331,7 @@ class Root(object):
         types = [e for e in types if e in matches]
         definitions = [e for e in definitions if e in matches]
         notes = [e for e in notes if e in matches]
+	authors = [e for e in authors if e in matches]
 
         results = dict(locals())
         del results['self']
@@ -404,6 +414,13 @@ class Root(object):
                   for e in self.note_stems.get(q, [])
                   if all(e in self.note_stems.get(q, []) for q in queries)
                   if e not in exclude)
+
+    @selector
+    def matches_author(self, queries, exclude):
+        return (e for q in queries
+                  for e in self.entries.itervalues()
+                  if e not in exclude
+                  if fnmatch(e.username, q))
 
     def _load_entries(self, xml):
         processors = {'rafsi': self._process_rafsi,
