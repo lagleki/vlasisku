@@ -7,4 +7,5 @@ pystemmer
 pqs
 Twisted
 jellyfish
+zerorpc
 -e git://github.com/durka/camxes-py.git@lujvo#egg=camxes-dev
