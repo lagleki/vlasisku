@@ -1,11 +1,13 @@
-import zerorpc
 import subprocess
+import atexit
 import os.path
+import zerorpc
 
 # this only happens once, since modules are singletons
 server = subprocess.Popen(['node', 'zmq'],
                           cwd=os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                            'ilmentufa'))
+atexit.register(lambda s: s.terminate(), server)
 client = zerorpc.Client()
 client.connect("tcp://127.0.0.1:4242")
 

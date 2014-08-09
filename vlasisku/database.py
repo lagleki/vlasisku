@@ -488,6 +488,13 @@ class Root(object):
         tokens = re.findall(r"[\w']+", child.text, re.UNICODE)
         for token in set(tokens):
             add_stems(token, self.note_stems, entry)
+        if entry.type == 'experimental gismu':
+            # find proposed rafsi
+            affixes = re.findall(r"-[\w']+-", child.text, re.UNICODE)
+            for affix in set(affixes):
+                affix = affix[1:-1]
+                entry.affixes.append(affix)
+                entry.searchaffixes.append(affix)
 
     def _process_user(self, entry, child):
         entry.username = child.find('username').text
