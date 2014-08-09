@@ -113,7 +113,12 @@ class WordBot(BotBase):
                 data = entry.username
             elif case('components'):
                 entry = query
-                data = ' '.join(compound2affixes(query, True))
+                data = ' '.join(map(lambda r: (lambda x: x[0].word if len(x) == 1
+                                                                   else r+'?')
+                                              (filter(lambda e: r in e.searchaffixes,
+                                                      database.root.entries.itervalues())),
+                                    filter(lambda r: len(r) > 2,
+                                           compound2affixes(query))))
             elif case('lujvo'):
                 data = ', '.join(lujvos)
                 if entry:

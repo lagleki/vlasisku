@@ -9,5 +9,5 @@ def parse(text, grammar="", rule="text", mode=1):
     if isinstance(result, dict):
         raise Exception("%(name)s from camxes: %(message)s (line %(line)d, column %(column)d, offset %(offset)d)" % result)
     else:
-        return result
+        return eval(result)
 

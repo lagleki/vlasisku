@@ -57,17 +57,29 @@ def unique(iterable):
             yield item
 
 
-import camxes
-from collections import namedtuple
-CamxesOptions = namedtuple('CamxesOptions', ['rule', 'transformer'])
-def compound2affixes(compound, expand=False):
+from vlasisku import zero
+def compound2affixes(compound):
     """Split a lujvo into rafsi"""
     try:
-        if expand:
-            a, _ = camxes.do_parse(compound, CamxesOptions('lujvo', 'lujvo-expand'))
-        else:
-            a, _ = camxes.do_parse(compound, CamxesOptions('lujvo', 'lujvo-break'))
-        return a
+        parts = zero.parse(compound, '', 'expanded_lujvo')[1]
+        processed = []
+        for i in range(len(parts)):
+            if parts[i][-1] == 'y':
+                if parts[i][-2] == "'":
+                    processed.append(parts[i][:-2])
+                    processed.append("'y")
+                else:
+                    processed.append(parts[i][:-1])
+                    processed.append('y')
+            elif parts[i][-2:] == "y'":
+                processed.append(parts[i][:-2])
+                processed.append("y'")
+            elif (len(parts[i]) in [4, 5]) and (parts[i][-1] in ['r', 'n']):
+                processed.append(parts[i][:-1])
+                processed.append(parts[i][-1])
+            else:
+                processed.append(parts[i])
+        return processed
     except:
         return []
 
