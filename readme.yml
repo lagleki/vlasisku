@@ -1,6 +1,7 @@
 Dependencies:
     - Python 2.5+
     - The packages in requirements.txt
+    - node.js and ZeroMQ (for camxes.js integration)
 
 Recommended for developers:
     - git
@@ -13,14 +14,26 @@ Recommended for developers:
 Installation for developers: |
     git clone https://github.com/lojban/vlasisku
     cd vlasisku
-    wget 'http://jbovlaste.lojban.org/export/xml-export.html?lang=en' \
-         -O vlasisku/data/jbovlaste.xml
 
     # Isolated Python environment
     mkvirtualenv --no-site-packages vlasisku
 
-    # Installs to that environment
+    # Install packages in the virtualenv
     pip install -r requirements.txt
+
+    # Install and set up camxes.js
+    git submodule init
+    git submodule update
+    cd ilmentufa
+    npm install zerorpc # you may also need libzmq or similar for your OS
+    node camxes-builder
+    node camxes-exp-builder
+    cd ..
+
+    # in a browser, log into jbovlaste
+    # extract your browser's cookie for lojban.org
+    # the cookie looks like "jbovlastesessionid=GIBBERISH", copy the gibberish
+    ./manage.py updatedb GIBBERISH
 
     # This takes some 20 seconds the first time
     # and must be done whenever the jbovlaste export is changed

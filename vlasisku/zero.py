@@ -1,6 +1,11 @@
 import zerorpc
+import subprocess
+import os.path
 
 # this only happens once, since modules are singletons
+server = subprocess.Popen(['node', 'zmq'],
+                          cwd=os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                           'ilmentufa'))
 client = zerorpc.Client()
 client.connect("tcp://127.0.0.1:4242")
 
