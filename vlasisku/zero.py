@@ -4,8 +4,8 @@ import zerorpc
 client = zerorpc.Client()
 client.connect("tcp://127.0.0.1:4242")
 
-def parse(text, rule="text", mode=1):
-    result = client.parse(text, rule, mode)
+def parse(text, grammar="", rule="text", mode=1):
+    result = client.parse(text, grammar, rule, mode)
     if isinstance(result, dict):
         raise Exception("%(name)s from camxes: %(message)s (line %(line)d, column %(column)d, offset %(offset)d)" % result)
     else:
