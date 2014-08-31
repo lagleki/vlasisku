@@ -2,7 +2,8 @@
 
 from __future__ import with_statement
 
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
+import itertools
 import re
 from functools import wraps
 from contextlib import contextmanager
@@ -15,7 +16,6 @@ import signal
 from pqs import Parser
 from flask import current_app, request
 import jellyfish
-
 
 def parse_query(query):
     """Parse a search query into a dict mapping fields to lists of match tests.
@@ -57,9 +57,9 @@ def unique(iterable):
             yield item
 
 
-from vlasisku import zero
 def compound2affixes(compound):
     """Split a lujvo into rafsi"""
+    import vlasisku.zero as zero
     try:
         parts = zero.parse(compound, '', 'expanded_lujvo')[1]
         processed = []
@@ -226,47 +226,97 @@ def jbofihe(text):
 
     raise ValueError('not grammatical')
 
-def jvocuhadju(text):
-    """Call ``jvocuhadju'' on text and return the output.
-    Returns up to 8 highest-scoring lujvo as a list of strings, ascending order by score.
+def parse_as(rule, text):
+    import vlasisku.zero as zero
+    try:
+        return zero.parse(text, '', rule)
+    except:
+        return None
+
+def all_rafsi(word):
+    from vlasisku import database
+    entry = database.root.query(word)['entry']
+    if entry:
+        return entry.affixes
+    return []
+
+def allowed_pair(pair):
+    return (not all(map(lambda c: parse_as("consonant", c), pair))) or parse_as("cluster", pair)
+
+def lujvo_score(lujvo):
+    l = len(lujvo)
+    a = lujvo.count("'")
+    h = lujvo.count("y")
+    v = sum(lujvo.count(v) for v in 'aeiou')
+    r = 0
+
+    def mapti(r, p):
+        p = p.replace('V', '[aeiou]')
+        p = p.replace('C', '[bcdfgjklmnprstvxz]')
+        p = '^' + p + '$'
+        return re.match(p, r) is not None
+
+    for rafsi in parse_as("expanded_lujvo", lujvo)[1]:
+        if mapti(rafsi, "CVV[rn]"):
+            h += 1
+            r += 8
+        elif mapti(rafsi, "CV'V[rn]"):
+            h += 1
+            r += 6
+        elif mapti(rafsi, 'CVCCV'):   r += 1
+        elif mapti(rafsi, 'CVCCy'):    r += 2
+        elif mapti(rafsi, 'CCVCV'):   r += 3
+        elif mapti(rafsi, 'CCVCy'):    r += 4
+        elif mapti(rafsi, 'CVC'):     r += 5
+        elif mapti(rafsi, "CV'V"):    r += 6
+        elif mapti(rafsi, 'CCV'):     r += 7
+        elif mapti(rafsi, 'CVV'):     r += 8
+
+    return (1000 * l) - (500 * a) + (100 * h) - (10 * r) - v
+
+def jvocuhadju(text, n=4):
+    """Build a lujvo from the text (sequence of selrafsi)
+    Returns up to n (default 4) possible lujvo as a list of strings, in ascending order by score.
 
     >>> jvocuhadju('melbi cmalu nixli ckule')
-    ["mlecmaxlicu'e", "melcmaxlicu'e", "mlecmanixycu'e", "melcmanixycu'e", "mlecmaxlickule", "melcmaxlickule", "mlecmalyxlicu'e", "mlecmanixlycu'e"]
+    ["mlecmaxlicu'e", "melcmaxlicu'e", "mlecmanixycu'e", "melcmanixycu'e"]
     >>> jvocuhadju('coi rodo')
-    Traceback (most recent call last):
-      ...
-    ValueError: Cannot use component [coi] in forming lujvo
+    []
     """
-    data = Queue(1)
-    process = Popen(('/usr/local/bin/jvocuhadju',) + tuple(text.split(' ')),
-                    stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    import vlasisku.zero as zero
 
-    def target(queue):
-        queue.put(process.communicate(''))
+    selrafsi = text.split(' ')
+    rafsi = OrderedDict()
+    for i, sr in zip(range(len(selrafsi)), selrafsi):
+        rafsi[sr] = all_rafsi(sr)
+        if parse_as("gismu", sr) is not None:
+            if i == len(selrafsi)-1:
+                rafsi[sr] += [sr]
+            else:
+                rafsi[sr] += [sr[:-1] + "y"]
+        if i == len(selrafsi)-1:
+            rafsi[sr] = filter(lambda r: r[-1] in 'aeiou', rafsi[sr])
+        else:
+            for r in rafsi[sr]:
+                if r[-1] in 'aeiou':
+                    rafsi[sr] += [r + "r", r + "n"]
+        if len(rafsi[sr]) == 0:
+            return 'no appropriate rafsi for %s' % sr
+        else:
+            rafsi[sr] = list(set(rafsi[sr]))
 
-    thread = Thread(target=target, args=(data,))
-    thread.start()
-    thread.join(1)
+    good_lujvo = []
+    for lujvo in itertools.product(*rafsi.values()):
+        s = lujvo[0]
+        for component in lujvo[1:]:
+            if allowed_pair(s[-1] + component[0]):
+                s += component
+            else:
+                s += "y" + component
 
-    if thread.isAlive():
-        os.kill(process.pid, signal.SIGTERM)
-        raise ValueError('jvocuhadju timeout')
+        if parse_as("lujvo", s):
+            good_lujvo += [s]
 
-    output, error = data.get()
 
-    if len(output) == 0:
-        raise ValueError(error.replace('\n', '. ').rstrip())
-
-    output = output.split('\n')
-    lujvo_started = 0
-    lujvo = []
-    for line in output:
-        if len(line) > 0:
-            if line[0] == '-':
-                lujvo_started += 1
-                continue
-            if lujvo_started == 2:
-                cols = line.split(' ')
-                lujvo.append(cols[-1])
-    return lujvo
+    return sorted(good_lujvo, key=lujvo_score)[:4]
 
