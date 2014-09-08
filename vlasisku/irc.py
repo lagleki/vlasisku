@@ -59,7 +59,7 @@ class FactoryBase(ReconnectingClientFactory):
 
 class WordBot(BotBase):
 
-    nickname = 'vlaste'
+    nickname = 'valsi'
 
     def query(self, target, query):
         fields = 'affix|class|type|notes|cll|url|components|lujvo'
@@ -84,7 +84,7 @@ class WordBot(BotBase):
                 self.msg(target, 'error: %s' % e)
                 return
 
-        url = 'http://alexburka.com/vlasisku/%s' % url_quote_plus(query)
+        url = 'http://vlasisku.lojban.org/%s' % url_quote_plus(query)
         results = database.root.query(query)
 
         entry = results['entry']
