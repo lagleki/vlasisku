@@ -15,7 +15,7 @@ app = Module(__name__)
 def index():
     db = database.root
     if 'query' in request.args:
-        return redirect(request.args.get('query'))
+        return redirect(url_for('query', query=request.args.get('query')))
     types = [(t[0], t[1], t[0].replace('-', ' ')) for t in TYPES]
     classes = set(e.grammarclass for e in db.entries.itervalues()
                                  if e.grammarclass)

@@ -65,11 +65,11 @@ def updatedb(session_cookie):
     url = 'http://jbovlaste.lojban.org/export/xml-export.html?lang=en'
     with closing(opener.open(url)) as data:
         xml = etree.parse(data)
-        assert xml.getroot().tag == 'dictionary'
+        assert xml.getroot().tag == 'dictionary', xml.getroot().tag
         with open('vlasisku/data/jbovlaste.xml', 'w') as file:
             xml.write(file, 'utf-8')
         os.system('''
-            rm -f vlasisku/data/db.pickle
+            rm vlasisku/data/db.pickle
             touch app.wsgi
             ''')
 
