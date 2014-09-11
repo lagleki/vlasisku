@@ -61,7 +61,7 @@ def updatedb(session_cookie):
     import os
 
     opener = urllib2.build_opener()
-    opener.addheaders.append(('Cookie', 'jbovlastesessionid=%s' % session_cookie))
+    opener.addheaders.append(('Cookie', 'jbovlastesessionid=%s' % app.config['BOT_KEY']))
     url = 'http://jbovlaste.lojban.org/export/xml-export.html?lang=en'
     with closing(opener.open(url)) as data:
         xml = etree.parse(data)

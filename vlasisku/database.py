@@ -141,11 +141,13 @@ class Database(object):
     def etag(self):
         return self.root.etag if self.root else None
 
-    def init_app(self, app):
+    def init_app(self, app, skip_cache=False):
         self.app = app
         root_path = app.root_path
         cache_path = join(root_path, app.config.get('VLASISKU_CACHE', 'data/db.pickle'))
-        root = self._load_from_cache(cache_path)
+        root = None
+        if not skip_cache:
+            root = self._load_from_cache(cache_path)
         if not root:
             root = self._load_from_source(cache_path)
         self.root = root

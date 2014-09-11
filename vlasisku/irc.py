@@ -1,6 +1,6 @@
 #-*- coding:utf-8 -*-
 
-import re
+import re, time
 
 from twisted.internet.protocol import ReconnectingClientFactory
 from twisted.python import log
@@ -98,6 +98,29 @@ class WordBot(BotBase):
         if query == 'help!':
             self.msg(target, '<query http://tiny.cc/query-format > '
                              '[(%s)]' % fields)
+            return
+        elif query == 'update!':
+            def do_update():
+                from contextlib import closing
+                import urllib2
+                import xml.etree.cElementTree as etree
+                import os
+
+                self.msg(target, 'downloading...')
+                opener = urllib2.build_opener()
+                opener.addheaders.append(('Cookie', 'jbovlastesessionid=%s' % self.factory.app.config['BOT_KEY']))
+                url = 'http://jbovlaste.lojban.org/export/xml-export.html?lang=en'
+                with closing(opener.open(url)) as data:
+                    xml = etree.parse(data)
+                    assert xml.getroot().tag == 'dictionary'
+                    with open('vlasisku/data/jbovlaste.xml', 'w') as file:
+                        xml.write(file, 'utf-8')
+                self.msg(target, 'updating...')
+                database.init_app(database.app, True)
+                self.msg(target, 'done!')
+
+            import threading
+            threading.Thread(target=do_update).start()
             return
 
         field = 'definition'
