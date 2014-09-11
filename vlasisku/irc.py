@@ -91,7 +91,6 @@ class FactoryBase(ReconnectingClientFactory):
 class WordBot(BotBase):
 
     nickname = 'vlaste'
-    registered_nickname = 'vlaste'
 
     def query(self, target, query):
         fields = 'affix|class|type|notes|cll|url|components|lujvo'
