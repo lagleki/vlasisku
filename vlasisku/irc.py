@@ -63,7 +63,7 @@ class WordBot(BotBase):
     nickname = 'vlaste2'
 
     def query(self, target, query, private):
-        fields = 'affix|class|type|notes|cll|url|finti|components|lujvo'
+        fields = 'affix|rafsi|class|selmaho|type|notes|cll|url|finti|components|lujvo'
 
         if query == 'help!':
             self.msg(target, '<query http://tiny.cc/query-format > '
@@ -85,7 +85,7 @@ class WordBot(BotBase):
                 self.msg(target, 'error: %s' % e)
                 return
 
-        url = 'http://alexburka.com/vlasisku/%s' % url_quote_plus(query)
+        url = 'http://vlasisku.alexburka.com/%s' % url_quote_plus(query)
         results = database.root.query(query)
 
         entry = results['entry']
@@ -96,9 +96,9 @@ class WordBot(BotBase):
             case = lambda x: field == x
             if case('definition'):
                 data = entry.textdefinition.encode('utf-8')
-            elif case('affix'):
+            elif case('affix') or case('rafsi'):
                 data = ', '.join('-%s-' % i for i in entry.affixes)
-            elif case('class'):
+            elif case('class') or case('selmaho'):
                 data = entry.grammarclass
             elif case('type'):
                 data = entry.type
@@ -167,7 +167,6 @@ class WordBot(BotBase):
 
 class WordBotFactory(FactoryBase):
     protocol = WordBot
-
 
 class GrammarBot(BotBase):
 
