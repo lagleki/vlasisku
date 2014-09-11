@@ -23,8 +23,8 @@ def runbots():
 
     from vlasisku.irc import GrammarBotFactory, WordBotFactory
 
-    #gerna = GrammarBotFactory()
-    valsi = WordBotFactory()
+    #gerna = GrammarBotFactory(app)
+    valsi = WordBotFactory(app)
 
     log.startLogging(sys.stdout)
     #reactor.connectTCP(gerna.server, gerna.port, gerna)
