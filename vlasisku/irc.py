@@ -6,6 +6,7 @@ from twisted.internet.protocol import ReconnectingClientFactory
 from twisted.python import log
 from twisted.words.protocols.irc import IRCClient
 from werkzeug import url_quote_plus
+import os.path
 
 from vlasisku import database
 from vlasisku.utils import jbofihe, jvocuhadju, compound2affixes
@@ -18,10 +19,33 @@ class BotBase(IRCClient):
         self.factory.resetDelay()
         for c in self.factory.channels:
             self.join(c)
+        try:
+            if self.nickname != self.registered_nickname:
+                self.msg('NickServ', 'GHOST %s %s' % (self.registered_nickname, self.factory.load_password()))
+            else:
+                self.msg('NickServ', 'IDENTIFY %s' % self.factory.load_password())
+        except AttributeError:
+            pass # not registered
+
+    def userQuit(self, user, quitMessage):
+        try:
+            if user == self.registered_nickname:
+                self.setNick(self.registered_nickname)
+        except AttributeError:
+            pass # not registered
+    
+    def nickChanged(self, nick):
+        self.nickname = nick
+        try:
+            if nick == self.registered_nickname:
+                self.msg('NickServ', 'IDENTIFY %s' % self.factory.load_password())
+        except AttributeError:
+            pass # not registered
 
     # The inherited implementation passes notices to privmsg, causing upset.
     def noticed(self, user, channel, message):
-        pass
+        if channel == self.nickname:
+            log.msg('-%s- %s' % (user, str(type(message)) + message))
 
     def msg(self, target, message):
         log.msg('<%(nickname)s> %(message)s' %
@@ -56,10 +80,18 @@ class FactoryBase(ReconnectingClientFactory):
     port = 6667
     channels = ['#lojban', '#ckule', '#balningau']
 
+    def __init__(self, app):
+        self.app = app
+    
+    def load_password(self):
+        with open(os.path.join(self.app.root_path, 'data/irc.nickserv.%s.secret' % self.protocol.registered_nickname), 'r') as f:
+            return f.read()
+
 
 class WordBot(BotBase):
 
     nickname = 'vlaste'
+    registered_nickname = 'vlaste'
 
     def query(self, target, query):
         fields = 'affix|class|type|notes|cll|url|components|lujvo'
