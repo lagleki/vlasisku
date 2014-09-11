@@ -115,7 +115,7 @@ class WordBot(BotBase):
                 self.msg(target, 'error: %s' % e)
                 return
 
-        url = 'http://alexburka.com/vlasisku/%s' % url_quote_plus(query)
+        url = 'http://%s/%s' % (self.factory.app.config['WEBSITE'], url_quote_plus(query))
         results = database.root.query(query)
 
         entry = results['entry']

@@ -10,6 +10,7 @@ genshi.init_app(app)
 database.init_app(app)
 
 ETAG = database.etag
+from local import *
 
 app.config.from_object(__name__)
 
