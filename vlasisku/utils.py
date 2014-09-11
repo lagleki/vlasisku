@@ -83,6 +83,16 @@ def compound2affixes(compound):
     except:
         return []
 
+def rafsi_lookup(rafsi):
+    from vlasisku import database
+    if isinstance(rafsi, list):
+        return map(rafsi_lookup, filter(lambda r: len(r) > 2, rafsi))
+
+    return (lambda r: (lambda x: x[0].word if len(x) == 1
+                                            else r+'?')
+                      (filter(lambda e: r in e.searchaffixes,
+                              database.root.entries.itervalues())))(rafsi)
+
 def old_compound2affixes(compound):
     """Split a compound word into affixes and glue."""
     c = r'[bcdfgjklmnprstvxz]'
@@ -286,6 +296,13 @@ def jvocuhadju(text, n=4):
     import vlasisku.zero as zero
 
     selrafsi = text.split(' ')
+    for i in range(len(selrafsi)):
+        expansion = compound2affixes(selrafsi[i])
+        if expansion:
+            selrafsi[i] = rafsi_lookup(expansion)
+        else:
+            selrafsi[i] = [selrafsi[i]]
+    selrafsi = sum(selrafsi, [])
     rafsi = OrderedDict()
     for i, sr in zip(range(len(selrafsi)), selrafsi):
         rafsi[sr] = all_rafsi(sr)
@@ -301,7 +318,7 @@ def jvocuhadju(text, n=4):
                 if r[-1] in 'aeiou':
                     rafsi[sr] += [r + "r", r + "n"]
         if len(rafsi[sr]) == 0:
-            return 'no appropriate rafsi for %s' % sr
+            raise ValueError('no appropriate rafsi for %s' % sr)
         else:
             rafsi[sr] = list(set(rafsi[sr]))
 
@@ -318,5 +335,5 @@ def jvocuhadju(text, n=4):
             good_lujvo += [s]
 
 
-    return sorted(good_lujvo, key=lujvo_score)[:4]
+    return sorted(good_lujvo, key=lujvo_score)[:n]
 

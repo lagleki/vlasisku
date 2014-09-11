@@ -8,8 +8,7 @@ from twisted.words.protocols.irc import IRCClient
 from werkzeug import url_quote_plus
 
 from vlasisku import database
-from vlasisku.utils import jbofihe, jvocuhadju, compound2affixes
-
+from vlasisku.utils import jbofihe, jvocuhadju, compound2affixes, rafsi_lookup
 
 class BotBase(IRCClient):
 
@@ -113,12 +112,7 @@ class WordBot(BotBase):
                 data = entry.username
             elif case('components'):
                 entry = query
-                data = ' '.join(map(lambda r: (lambda x: x[0].word if len(x) == 1
-                                                                   else r+'?')
-                                              (filter(lambda e: r in e.searchaffixes,
-                                                      database.root.entries.itervalues())),
-                                    filter(lambda r: len(r) > 2,
-                                           compound2affixes(query))))
+                data = ' '.join(rafsi_lookup(compound2affixes(query)))
             elif case('lujvo'):
                 data = ', '.join(lujvos)
                 if entry:
