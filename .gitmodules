@@ -1,3 +1,4 @@
 [submodule "ilmentufa"]
 	path = ilmentufa
 	url = https://github.com/lojban/ilmentufa.git
+	branch = rpc
