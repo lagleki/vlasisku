@@ -35,6 +35,8 @@
         ${Markup(entry.components() or entry)}
 
         <span py:if="entry.grammarclass" class="grammarclass">
+
+          <span class="label">selma'o: </span>
           
           <span class="paren left">(</span>
           <py:for each="grammarclass in entry.terminates">
@@ -51,11 +53,12 @@
         </span>
 
         <span py:if="entry.affixes" class="affixes">
+          <span class="label">rafsi: </span>
           <span py:def="hyphen()" class="hyphen">-</span>
           ${hyphen()}<py:for each="a in entry.affixes">$a${hyphen()}</py:for>
         </span>
 
-        <span class="type">$entry.type</span>
+        <span class="type"><span class="label">type: </span>$entry.type</span>
       </h1>
 
       <p class="definition">${Markup(entry.definition)}</p>

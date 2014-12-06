@@ -17,6 +17,8 @@ body
 
 #nav
 {
+  margin-top: 8px;
+
   float: left;
 }
 #nav ol
@@ -84,11 +86,15 @@ body
 
 #entry
 {
+  position: relative;
   margin-bottom: 16px;
   padding: 16px 24px;
   border-radius: 6px;
 
   background: #f8f8f8;
+}
+#entry .label {
+  display: none;
 }
 #entry h1 {
   font-weight: 500;
@@ -120,12 +126,12 @@ body
 }
 #entry .type
 {
-  padding-top: 11px;
+  position: absolute;
+  top: 27px;
+  right: 24px;
 
   font-size: 40px;
   font-weight: 300;
-
-  float: right;
 }
 #entry .definition
 {
@@ -182,6 +188,7 @@ h2
 dd
 {
   white-space: pre-wrap;
+  word-wrap: break-word; /* to avoid horizontal scroll */
 }
 
 /*****************************************************************************/
@@ -207,4 +214,45 @@ a[href^='https:']
 .ac_results
 {
   text-align: left;
+}
+
+@media screen and (max-width: 640px) {
+  #search {
+    text-align: left;
+  }
+  
+  #matches {
+    text-align: left;
+  }
+  #matches ol {
+    padding-left: 0;
+  }
+  #matches li {
+    margin-left: 0;
+    margin-right: 1em;
+  }
+
+  #entry .label {
+    display: inline;
+  }
+  #entry .grammarclrass, #entry .affixes, #entry .type {
+    position: static;
+    display: block;
+    margin-top: 0;
+  
+    font-size: 20px;
+    font-weight: 400;
+    font-style: italic;
+
+    float: none;
+  }
+  #entry .affixes {
+    margin-top: 12px;
+  }
+  #entry .affixes .hyphen {
+    padding: 0 2px;
+  }
+  #entry .type {
+    margin-top: 6px;
+  }
 }
