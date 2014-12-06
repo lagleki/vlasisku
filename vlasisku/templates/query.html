@@ -34,7 +34,9 @@
       <h1>
         ${Markup(entry.components() or entry)}
 
-        <sub py:if="entry.grammarclass">
+        <span py:if="entry.grammarclass" class="grammarclass">
+          
+          <span class="paren left">(</span>
           <py:for each="grammarclass in entry.terminates">
             <a href="$grammarclass">$grammarclass</a>…
           </py:for>
@@ -44,7 +46,9 @@
           <py:if test="entry.terminator">
             …<a href="$entry.terminator">$entry.terminator</a>
           </py:if>
-        </sub>
+          <span class="paren right">)</span>
+
+        </span>
 
         <span py:if="entry.affixes" class="affixes">
           <span py:def="hyphen()" class="hyphen">-</span>
@@ -63,7 +67,6 @@
         </li>
         <li><a href="http://jbovlaste.lojban.org/dict/$entry" title="This entry in the dictonary editor.">jbovlaste</a></li>
       </ul>
-      <hr/>
     </div>
 
     <div py:if="glosses" id="gloss">
