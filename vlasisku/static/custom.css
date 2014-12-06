@@ -220,7 +220,13 @@ a[href^='https:']
   #search {
     text-align: left;
   }
-  
+  #query {
+    width: 71%;
+  }
+  #search button {
+    width: 20%;
+  }
+
   #matches {
     text-align: left;
   }
@@ -228,6 +234,7 @@ a[href^='https:']
     padding-left: 0;
   }
   #matches li {
+    display: inline-block;
     margin-left: 0;
     margin-right: 1em;
   }
@@ -254,5 +261,11 @@ a[href^='https:']
   }
   #entry .type {
     margin-top: 6px;
+  }
+}
+
+@media screen and (max-width: 393px) {
+  #search button img {
+    display: none;
   }
 }
