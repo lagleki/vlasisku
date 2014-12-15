@@ -508,8 +508,8 @@ class Root(object):
         self.gloss_stems = {}
         for type, _ in TYPES:
             for word in xml.findall('.//nlword'):
-                entry = self.entries[word.get('valsi')]
-                if entry.type == type:
+                entry = self.entries.get(word.get('valsi'), None)
+                if entry is not None and entry.type == type:
                     gloss = Gloss()
                     gloss.gloss = word.get('word')
                     gloss.entry = entry
