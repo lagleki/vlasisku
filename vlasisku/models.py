@@ -62,6 +62,16 @@ class Entry(object):
     def __repr__(self):
         return '<Entry %s>' % self.word
 
+    def to_api_object(self):
+        """Produce a dictionary suitable for conversion to JSON from the
+        relevant fields of this object.
+
+        """
+        return dict( (s, getattr(self, s))
+                for s in ["word", "type", "affixes", "grammarclass",
+                    "terminator", "terminates", "cll", "textdefinition",
+                    "textnotes", "username", "realname"])
+
     def components(self):
         """Build HTML that links the affixes in a compound
         to their corresponding words, with definitions in the link tooltips.

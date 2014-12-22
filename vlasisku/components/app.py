@@ -1,5 +1,5 @@
 
-from flask import Module, request, redirect, url_for
+from flask import Module, request, redirect, url_for, jsonify
 from flaskext.genshi import render_response
 
 from vlasisku.extensions import database
@@ -57,6 +57,16 @@ def query(query):
     results.update(locals())
     return render_response('query.html', results)
 
+@app.route('/api/lookup/<query>')
+def api_query(query):
+    db = database.root
+    query = query.replace('+', ' ')
+    results = db.query(query)
+
+    if results['entry'] is None:
+        return jsonify({})
+    else:
+        return jsonify(results['entry'].to_api_object())
 
 @app.route('/_complete/')
 def complete():
