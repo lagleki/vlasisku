@@ -333,6 +333,12 @@ class Root(object):
         notes = [e for e in notes if e in matches]
 	authors = [e for e in authors if e in matches]
 
+        # Delete locals that aren't actually a part of the results
+        if "e" in locals():
+            del e
+
+        del parsed_query
+
         results = dict(locals())
         del results['self']
         return results
