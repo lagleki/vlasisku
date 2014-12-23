@@ -1,10 +1,12 @@
 
-from flask import Module, request, redirect, url_for, jsonify
+from flask import Module, request, redirect, url_for, jsonify, abort
 from flaskext.genshi import render_response
 
 from vlasisku.extensions import database
 from vlasisku.utils import etag, compound2affixes, dameraulevenshtein
 from vlasisku.database import TYPES
+
+import vlasisku.api as api
 
 
 app = Module(__name__)
@@ -57,16 +59,13 @@ def query(query):
     results.update(locals())
     return render_response('query.html', results)
 
-@app.route('/api/lookup/<query>')
-def api_query(query):
-    db = database.root
-    query = query.replace('+', ' ')
-    results = db.query(query)
-
-    if results['entry'] is None:
-        return jsonify({})
-    else:
-        return jsonify(results['entry'].to_api_object())
+@app.route('/api/<function>/<query>')
+@etag
+def api_query(function, query):
+    try:
+        return getattr(api, function)(query)
+    except AttributeError:
+        abort(404)
 
 @app.route('/_complete/')
 def complete():
