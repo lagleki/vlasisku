@@ -13,14 +13,16 @@ Recommended for developers:
 Installation for developers: |
     git clone https://github.com/lojban/vlasisku
     cd vlasisku
-    wget 'http://jbovlaste.lojban.org/export/xml-export.html?lang=en' \
-         -O vlasisku/data/jbovlaste.xml
 
     # Isolated Python environment
     mkvirtualenv --no-site-packages vlasisku
 
     # Installs to that environment
     pip install -r requirements.txt
+
+    # Modify download.py to use your jbovlaste credentials, then use it
+    # to download a jbovlaste XML dump. (It takes a while to run.)
+    ./download.py
 
     # This takes some 20 seconds the first time
     # and must be done whenever the jbovlaste export is changed
