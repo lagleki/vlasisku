@@ -4,6 +4,5 @@ ordereddict
 pyyaml
 simplejson
 pystemmer
-pqs
 Twisted
 jellyfish
