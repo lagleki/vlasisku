@@ -6,6 +6,7 @@ from __future__ import with_statement
 from flask.ext.script import Manager
 
 from vlasisku import app
+from vlasisku.extensions import database
 app.debug = True
 
 
@@ -50,28 +51,36 @@ def shell_context():
 
     return context
 
-
 @manager.command
-def updatedb(session_cookie):
-    """Export and index a new database from jbovlaste. Requires JVS session cookie."""
+def updatedb():
+    """Export and index a new database from jbovlaste."""
 
     from contextlib import closing
     import urllib2
     import xml.etree.cElementTree as etree
     import os
 
+    print 'Downloading jbovlaste xml file; this may take a bit.'
+
     opener = urllib2.build_opener()
-    opener.addheaders.append(('Cookie', 'jbovlastesessionid=%s' % app.config['BOT_KEY']))
-    url = 'http://jbovlaste.lojban.org/export/xml-export.html?lang=en'
+    # The bot key is essentially a magic secret for vlasisku and things like
+    # it, so you don't have to login with real credentials.  If it stops
+    # working, contact the jbovlaste administrator.
+    url = 'http://jbovlaste.lojban.org/export/xml-export.html?lang=en&bot_key=z2BsnKYJhAB0VNsl'
     with closing(opener.open(url)) as data:
+        print 'Parsing jbovlaste xml'
         xml = etree.parse(data)
         assert xml.getroot().tag == 'dictionary'
+        print 'Storing jbovlaste xml'
         with open('vlasisku/data/jbovlaste.xml', 'w') as file:
             xml.write(file, 'utf-8')
+        print 'Removing old database.'
         os.system('''
             rm -f vlasisku/data/db.pickle
-            touch app.wsgi
+            touch vlasisku/database.py
             ''')
+    print 'The running site should now automatically reload the database, or if it is not running the next startup will do so.'
+    # If forcing a reload here is desired, this works: database.init_app(database.app)
 
 
 if __name__ == "__main__":
