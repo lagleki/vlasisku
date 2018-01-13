@@ -1,0 +1,16 @@
+[Unit]
+Description=Site/Webserver for vlasisku.lojban.org
+# this won't work because it's not a user-level service: After=docker.service
+
+[Service]
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=vlasisku
+WorkingDirectory=/home/sampre_vs/vlasisku
+ExecStart=/bin/bash -x /home/sampre_vs/vlasisku/run_docker.sh 2>&1
+ExecStop=/bin/bash -x /home/sampre_vs/vlasisku/kill_docker.sh 2>&1
+TimeoutStartSec=10min
+
+[Install]
+WantedBy=default.target
