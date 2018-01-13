@@ -12,6 +12,7 @@ from functools import wraps
 from Stemmer import Stemmer
 from ordereddict import OrderedDict
 import yaml
+import sys
 
 from vlasisku.models import Entry, Gloss
 from vlasisku.utils import parse_query, ignore, unique
@@ -228,6 +229,7 @@ class Root(object):
 
         with open(join(root_path, jbovlaste)) as f:
             xml = ElementTree.parse(f)
+            print 'Rebuilding database; this might take a minute or two.  Printing a . for each thousand entries.'
             self._load_entries(xml)
             self._load_glosses(xml)
 
@@ -417,9 +419,15 @@ class Root(object):
         self.definition_stems = {}
         self.note_stems = {}
 
+        count=0
+
         for type, _ in TYPES:
             for valsi in xml.findall('.//valsi'):
                 if valsi.get('type') == type:
+                    count += 1
+                    if count % 1000 == 0:
+                        sys.stdout.write('.')
+                        sys.stdout.flush()
                     entry = Entry(self)
                     entry.type = type
                     entry.word = valsi.get('word')
@@ -476,9 +484,22 @@ class Root(object):
     def _load_glosses(self, xml):
         self.glosses = []
         self.gloss_stems = {}
+
+        # import pprint
+        # pprint.pprint(dict(self.entries.items()))
+
+        count=0
+
         for type, _ in TYPES:
             for word in xml.findall('.//nlword'):
+                count += 1
+                if count % 1000 == 0:
+                    sys.stdout.write('.')
+                    sys.stdout.flush()
+                # pprint.pprint(word.get('valsi'))
+
                 entry = self.entries[word.get('valsi')]
+                # pprint.pprint(entry)
                 if entry.type == type:
                     gloss = Gloss()
                     gloss.gloss = word.get('word')
@@ -487,3 +508,5 @@ class Root(object):
                     gloss.place = word.get('place')
                     self.glosses.append(gloss)
                     add_stems(gloss.gloss, self.gloss_stems, gloss)
+        print ''
+        print 'Rebuild complete.'
