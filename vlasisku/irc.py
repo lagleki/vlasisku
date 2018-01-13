@@ -78,7 +78,7 @@ class BotBase(IRCClient):
 class FactoryBase(ReconnectingClientFactory):
     server = 'irc.freenode.net'
     port = 6667
-    channels = ['#lojban', '#ckule', '#balningau']
+    channels = ['#lojban', '#ckule', '#balningau', '#vlalinkei']
 
     def __init__(self, app):
         self.app = app

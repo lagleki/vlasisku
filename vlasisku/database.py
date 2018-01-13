@@ -27,9 +27,12 @@ TYPES = (
          ('experimental cmavo', 'Non-standard particles.')     ,
          ("fu'ivla", 'Loan words.')                            ,
          ('cmene', 'Names.')                                   ,
+         ('cmevla', 'Names.')                                  ,
          ('bu-letteral', 'Letters.')                           ,
          ('zei-lujvo', 'Compound words with ZEI.')             ,
+         ('obsolete cmevla', 'Obsolete names.')                ,
          ('obsolete cmene', 'Obsolete names.')                 ,
+         ('obsolete cmavo', 'Obsolete particles.')             ,
          ("obsolete fu'ivla", 'Obsolete loan words.')          ,
          ('obsolete zei-lujvo', 'Obsolete ZEI compound words.')
          )
