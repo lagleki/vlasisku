@@ -3,9 +3,10 @@ vlasisku:
         - vlasisku/{data,templates}/*
         - vlasisku/static/custom.*
         - "*.py"
-    copyright: Copyright © 2010 Dag Odenhall <dag.odenhall@gmail.com>
-    url: https://github.com/dag/vlasisku/
-    license: http://www.gnu.org/licenses/agpl-3.0.html
+    copyright: Copyright © 2018 The Logical Language Group
+    author: Dag Odenhall <dag.odenhall@gmail.com>
+    url: https://github.com/lojban/vlasisku
+    license: Do What You Want; see LICENSE
 
 Blueprint CSS framework:
     files:

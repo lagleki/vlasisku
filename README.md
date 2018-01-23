@@ -18,9 +18,9 @@ Docker.  That should be it.
 
 Run setup.sh and then run_docker.sh
 
-You can run the tests with:
+You can run the tests in another window with:
 
-        $ nosetests -v --with-doctest
+        $ docker exec -it lojban_vlasisku nosetests -v --with-doctest
 
 
 How To Reach The Server
