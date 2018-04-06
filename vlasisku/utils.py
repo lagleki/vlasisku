@@ -111,15 +111,11 @@ def ignore(exc):
 def dameraulevenshtein(seq1, seq2):
     """Calculate the Damerau-Levenshtein distance between sequences.
 
-    This distance is the number of additions, deletions, substitutions,
-    and transpositions needed to transform the first sequence into the
-    second. Arguments must be strings.
+    This distance is the number of operations (consisting of insertions,
+    deletions or substitutions of a single character, or transposition of two
+    adjacent characters) required to change one sequence into the other.
 
-    Transpositions are exchanges of *consecutive* characters; all other
-    operations are self-explanatory.
-
-    This implementation is O(N*M) time and O(M) space, for N and M the
-    lengths of the two sequences.
+    Arguments may be str or unicode.
 
     >>> dameraulevenshtein('ba', 'abc')
     2
@@ -131,8 +127,12 @@ def dameraulevenshtein(seq1, seq2):
     Note: the real answer is 2: abcd->bacd->bacde
           but this algorithm is apparently doing abcd->acd->bacd->bacde
     """
-    return jellyfish.damerau_levenshtein_distance(seq1.encode('utf-8'),
-                                                  seq2.encode('utf-8'))
+    if isinstance(seq1, str):
+        seq1 = unicode(seq1, 'utf-8')
+    if isinstance(seq2, str):
+        seq2 = unicode(seq2, 'utf-8')
+
+    return jellyfish.damerau_levenshtein_distance(seq1, seq2)
 
 
 def jbofihe(text):
