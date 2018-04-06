@@ -15,6 +15,7 @@ import signal
 from pqs import Parser
 from flask import current_app, request
 import jellyfish
+import jellyfish._jellyfish as py_jellyfish
 
 
 def parse_query(query):
@@ -123,13 +124,21 @@ def dameraulevenshtein(seq1, seq2):
     2
     >>> dameraulevenshtein(u'abcd', u'bacde')
     2
+    >>> dameraulevenshtein(u'number e', u'number \u03c0')
+    1
     """
     if isinstance(seq1, str):
         seq1 = unicode(seq1, 'utf-8')
     if isinstance(seq2, str):
         seq2 = unicode(seq2, 'utf-8')
 
-    return jellyfish.damerau_levenshtein_distance(seq1, seq2)
+    # Fall back onto Python implementation for code points unsupported by the C
+    # implementation.
+    # https://github.com/jamesturk/jellyfish/issues/55#issuecomment-312509263
+    try:
+        return jellyfish.damerau_levenshtein_distance(seq1, seq2)
+    except ValueError:
+        return py_jellyfish.damerau_levenshtein_distance(seq1, seq2)
 
 
 def jbofihe(text):
