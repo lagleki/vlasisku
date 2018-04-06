@@ -121,11 +121,8 @@ def dameraulevenshtein(seq1, seq2):
     2
     >>> dameraulevenshtein('fee', 'deed')
     2
-    >>> dameraulevenshtein('abcd', 'bacde')
-    3
-
-    Note: the real answer is 2: abcd->bacd->bacde
-          but this algorithm is apparently doing abcd->acd->bacd->bacde
+    >>> dameraulevenshtein(u'abcd', u'bacde')
+    2
     """
     if isinstance(seq1, str):
         seq1 = unicode(seq1, 'utf-8')
