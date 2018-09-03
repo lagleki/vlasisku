@@ -15,6 +15,7 @@ import signal
 from pqs import Parser
 from flask import current_app, request
 import jellyfish
+import jellyfish._jellyfish as py_jellyfish
 
 
 def parse_query(query):
@@ -111,28 +112,33 @@ def ignore(exc):
 def dameraulevenshtein(seq1, seq2):
     """Calculate the Damerau-Levenshtein distance between sequences.
 
-    This distance is the number of additions, deletions, substitutions,
-    and transpositions needed to transform the first sequence into the
-    second. Arguments must be strings.
+    This distance is the number of operations (consisting of insertions,
+    deletions or substitutions of a single character, or transposition of two
+    adjacent characters) required to change one sequence into the other.
 
-    Transpositions are exchanges of *consecutive* characters; all other
-    operations are self-explanatory.
-
-    This implementation is O(N*M) time and O(M) space, for N and M the
-    lengths of the two sequences.
+    Arguments may be str or unicode.
 
     >>> dameraulevenshtein('ba', 'abc')
     2
     >>> dameraulevenshtein('fee', 'deed')
     2
-    >>> dameraulevenshtein('abcd', 'bacde')
-    3
-
-    Note: the real answer is 2: abcd->bacd->bacde
-          but this algorithm is apparently doing abcd->acd->bacd->bacde
+    >>> dameraulevenshtein(u'abcd', u'bacde')
+    2
+    >>> dameraulevenshtein(u'number e', u'number \u03c0')
+    1
     """
-    return jellyfish.damerau_levenshtein_distance(seq1.encode('utf-8'),
-                                                  seq2.encode('utf-8'))
+    if isinstance(seq1, str):
+        seq1 = unicode(seq1, 'utf-8')
+    if isinstance(seq2, str):
+        seq2 = unicode(seq2, 'utf-8')
+
+    # Fall back onto Python implementation for code points unsupported by the C
+    # implementation.
+    # https://github.com/jamesturk/jellyfish/issues/55#issuecomment-312509263
+    try:
+        return jellyfish.damerau_levenshtein_distance(seq1, seq2)
+    except ValueError:
+        return py_jellyfish.damerau_levenshtein_distance(seq1, seq2)
 
 
 def jbofihe(text):
