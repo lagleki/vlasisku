@@ -17,15 +17,20 @@ class BotBase(IRCClient):
     def signedOn(self):
         log.msg('* Logged on')
         self.factory.resetDelay()
-        for c in self.factory.channels:
-            self.join(c)
+
         try:
             if self.nickname != self.registered_nickname:
+                log.msg('Ghosting with NickServ.')
                 self.msg('NickServ', 'GHOST %s %s' % (self.registered_nickname, self.factory.load_password()))
-            else:
-                self.msg('NickServ', 'IDENTIFY %s' % self.factory.load_password())
+
+            log.msg('Identifying with NickServ.')
+            self.msg('NickServ', 'IDENTIFY %s' % self.factory.load_password())
         except AttributeError:
             pass # not registered
+
+        for c in self.factory.channels:
+            log.msg('Joining %s' % c)
+            self.join(c)
 
     def userQuit(self, user, quitMessage):
         try:
@@ -46,6 +51,19 @@ class BotBase(IRCClient):
     def noticed(self, user, channel, message):
         if channel == self.nickname:
             log.msg('-%s- %s' % (user, str(type(message)) + message))
+            # Here we do a crappy job of handling the whole "wait for nickserv
+            # to do our stuff" thing, now that we have to be registered to join
+            # #lojban
+            if re.match(r'NickServ', user):
+                # Keep trying to identify until it says we have
+                if not re.match(r'You are already logged in', message):
+                    log.msg('Identifying with NickServ.')
+                    self.msg('NickServ', 'IDENTIFY %s' % self.factory.load_password())
+
+                # And when we're done, join channels
+                for c in self.factory.channels:
+                    log.msg('Joining %s' % c)
+                    self.join(c)
 
     def msg(self, target, message):
         log.msg('<%(nickname)s> %(message)s' %
@@ -91,6 +109,7 @@ class FactoryBase(ReconnectingClientFactory):
 class WordBot(BotBase):
 
     nickname = 'valsi'
+    registered_nickname = 'valsi'
 
     def query(self, target, query):
         fields = 'affix|class|type|notes|cll|url|components|lujvo'
