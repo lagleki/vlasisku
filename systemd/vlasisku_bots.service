@@ -8,7 +8,7 @@ StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=vlasisku_bots
 WorkingDirectory=/home/sampre_vs/vlasisku
-ExecStart=/bin/bash -x /home/sampre_vs/vlasisku/run_bots_docker.sh 2>&1
+ExecStart=/bin/bash -x /home/sampre_vs/vlasisku/run_bots_container.sh 2>&1
 TimeoutStartSec=10min
 
 [Install]

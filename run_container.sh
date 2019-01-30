@@ -4,9 +4,12 @@ exec 2>&1
 set -e
 set -x
 
-./kill_docker.sh "$@"
+CONTAINER_BIN=${CONTAINER_BIN:-$(which podman)}
+CONTAINER_BIN=${CONTAINER_BIN:-$(which docker)}
 
-./build_docker.sh "$@"
+./kill_container.sh "$@"
+
+./build_container.sh "$@"
 
 test=""
 # Test mode
@@ -18,8 +21,8 @@ fi
 # if [ "$test" ]
 # then
 # 	echo "Copying web data to test folders."
-# 	rsync -aHAX --delete /srv/lojban/mediawiki-docker/data/files/ /srv/lojban/mediawiki-docker/data/files$test/
-# 	rsync -aHAX --delete /srv/lojban/mediawiki-docker/data/images/ /srv/lojban/mediawiki-docker/data/images$test/
+# 	rsync -aHAX --delete /srv/lojban/mediawiki/data/files/ /srv/lojban/mediawiki/data/files$test/
+# 	rsync -aHAX --delete /srv/lojban/mediawiki/data/images/ /srv/lojban/mediawiki/data/images$test/
 # fi
 
 web_port=12080
@@ -46,10 +49,10 @@ echo
 ./fix_selinux.sh
 
 echo
-echo "Launching website docker, which will listen on web_port $web_port"
+echo "Launching website container, which will listen on web_port $web_port"
 echo
 
-sudo docker run --name lojban_vlasisku${test} -p $web_port:8080 \
+sudo $CONTAINER_BIN run --name lojban_vlasisku${test} -p $web_port:8080 \
 	-v /srv/lojban/vlasisku:/srv/lojban/vlasisku \
 	-i $hasterm lojban/vlasisku:$ITERATION \
 	bash -c "/srv/lojban/vlasisku/manage.py runserver -h 0.0.0.0 -p 8080 --threaded --passthrough-errors -D -r"

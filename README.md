@@ -2,7 +2,7 @@ Lojban Mediawiki Server
 =======================
 
 This repo cotnains the code used to run the Lojban vlasisku Server, which runs
-inside a pair of Docker containers, one for the web server and one for the IRC
+inside a pair of containers, one for the web server and one for the IRC
 bots.
 
 CHECK STUFF IN WHEN YOUR CHANGES ARE DONE!!!
@@ -14,9 +14,9 @@ something, please check it in!
 Requirements To Run Yourself
 ----------------------------
 
-Docker.  That should be it.
+Docker, or Podman.  That should be it.
 
-Run setup.sh and then run_docker.sh
+Run setup.sh and then run_container.sh
 
 You can run the tests in another window with:
 
@@ -44,7 +44,7 @@ How To Test Changes
 Make whatever changes you want, typically to Dockerfile or the source files,
 and run:
 
-	$ ./run_docker -t
+	$ ./run_container.sh -t
 
 This will run the server on an alternate port.
 You can reach the test instance at http://test-vs.lojban.org/
@@ -81,12 +81,12 @@ How To Show What Is Actually Running
                    │ ├─30255 /usr/lib/systemd/systemd --user
                    │ └─30257 (sd-pam)
                    └─vlasisku.service
-                     └─21277 /bin/bash -x /home/sampre_vs/vlasisku/run_docker.sh 2>&1
+                     └─21277 /bin/bash -x /home/sampre_vs/vlasisku/run_container.sh 2>&1
 
 How To Interact With The Instances Directly
 -------------------------------------------
 
-	$udo docker exec -it lojban_vlasisku bash 
+	$ sudo docker exec -it lojban_vlasisku bash 
 
 This will give you a shell on the production web instance; modify as
 appropriate for other instances.
