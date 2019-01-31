@@ -248,11 +248,12 @@ class WordBotFactory(FactoryBase):
 
 class GrammarBot(BotBase):
 
-    nickname = 'tcepru'
+    nickname = 'gerna'
+    registered_nickname = 'gerna'
 
-    def query(self, target, query):
+    def query(self, target, query, private):
         try:
-            response = yaccparser(query)
+            response = jbofihe(query)
         except ValueError, e:
             response = str(e)
 
