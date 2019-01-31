@@ -83,7 +83,7 @@ class BotBase(IRCClient):
         if target != channel:
             query = message
         else:
-            trigger = r'^%(nickname)s[:,]? (?P<query>.+)' \
+            trigger = r'^(?:<\S+>: )?%(nickname)s[:,]? (?P<query>.+)' \
                     % dict(nickname=re.escape(self.nickname))
             match = re.match(trigger, message)
             if match:
