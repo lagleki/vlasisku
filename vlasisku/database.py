@@ -243,7 +243,7 @@ class Root(object):
 
         >>> from vlasisku.extensions import database
         >>> len(database.root.query('class:UI4')['matches'])
-        6
+        7
 
         """
         parsed_query = parse_query(query)
