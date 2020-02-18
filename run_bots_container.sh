@@ -32,4 +32,4 @@ echo
 echo "Launching container bots inside the previous container instance"
 echo
 
-sudo $CONTAINER_BIN exec -i $hasterm lojban_vlasisku${test} bash -c "cd /srv/lojban/vlasisku ; ./manage.py runbots"
+$CONTAINER_BIN exec -i $hasterm lojban_vlasisku${test} bash -c "cd /srv/lojban/vlasisku ; ./manage.py runbots"

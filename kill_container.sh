@@ -13,8 +13,8 @@ then
 	test="_test"
 fi
 
-sudo $CONTAINER_BIN stop --time=30 lojban_vlasisku${test}
-sudo $CONTAINER_BIN kill lojban_vlasisku${test}
-sudo $CONTAINER_BIN rm lojban_vlasisku${test}
+$CONTAINER_BIN stop --time=30 lojban_vlasisku${test}
+$CONTAINER_BIN kill lojban_vlasisku${test}
+$CONTAINER_BIN rm lojban_vlasisku${test}
 
 exit 0

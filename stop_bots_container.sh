@@ -32,11 +32,11 @@ echo
 echo "Killing container bots inside the previous container instance"
 echo
 
-while sudo $CONTAINER_BIN exec -i $hasterm lojban_vlasisku${test} pgrep -f runbots
+while $CONTAINER_BIN exec -i $hasterm lojban_vlasisku${test} pgrep -f runbots
 do
-	sudo $CONTAINER_BIN exec -i $hasterm lojban_vlasisku${test} pkill -f runbots || true
+	$CONTAINER_BIN exec -i $hasterm lojban_vlasisku${test} pkill -f runbots || true
 	sleep 1
-	sudo $CONTAINER_BIN exec -i $hasterm lojban_vlasisku${test} pkill -9 -f runbots || true
+	$CONTAINER_BIN exec -i $hasterm lojban_vlasisku${test} pkill -9 -f runbots || true
 done
 
-sudo $CONTAINER_BIN exec -i $hasterm lojban_vlasisku${test} pgrep -f runbots || exit 0
+$CONTAINER_BIN exec -i $hasterm lojban_vlasisku${test} pgrep -f runbots || exit 0

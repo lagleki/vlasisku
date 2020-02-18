@@ -52,7 +52,7 @@ echo
 echo "Launching website container, which will listen on web_port $web_port"
 echo
 
-sudo $CONTAINER_BIN run --name lojban_vlasisku${test} -p $web_port:8080 \
+$CONTAINER_BIN run --userns=keep-id --name lojban_vlasisku${test} -p $web_port:8080 \
 	-v /srv/lojban/vlasisku:/srv/lojban/vlasisku \
 	-i $hasterm lojban/vlasisku:$ITERATION \
 	bash -c "/srv/lojban/vlasisku/manage.py runserver -h 0.0.0.0 -p 8080 --threaded --passthrough-errors -D -r"

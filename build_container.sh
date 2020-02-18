@@ -21,6 +21,6 @@ echo
 echo "Building vlasisku container."
 echo
 
-sudo $CONTAINER_BIN build --build-arg=VS_USERID=$(id -u) --build-arg=VS_GROUPID=$(id -g) \
+$CONTAINER_BIN build --build-arg=VS_USERID=$(id -u) --build-arg=VS_GROUPID=$(id -g) \
 	-t lojban/vlasisku:$ITERATION \
 	-f Dockerfile .
