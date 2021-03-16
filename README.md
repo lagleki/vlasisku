@@ -1,7 +1,7 @@
 Lojban Mediawiki Server
 =======================
 
-This repo cotnains the code used to run the Lojban vlasisku Server.
+This repo contains the code used to run the Lojban vlasisku Server.
 
 For details of how to run and manage this as a service, see
 https://github.com/lojban/vlasisku-containers
