@@ -62,11 +62,16 @@ def updatedb():
 
     print 'Downloading jbovlaste xml file; this may take a bit.'
 
-    opener = urllib2.build_opener()
+    # Debugging info is nice
+    opener = urllib2.build_opener(urllib2.HTTPSHandler(debuglevel=1))
+
+    # CloudFlare doesn't give out data to urllib2's default user agent
+    opener.addheaders = [('User-Agent', 'vlasisku')]
+
     # The bot key is essentially a magic secret for vlasisku and things like
     # it, so you don't have to login with real credentials.  If it stops
     # working, contact the jbovlaste administrator.
-    url = 'http://jbovlaste.lojban.org/export/xml-export.html?lang=en&bot_key=z2BsnKYJhAB0VNsl'
+    url = 'https://jbovlaste.lojban.org/export/xml-export.html?lang=en&bot_key=z2BsnKYJhAB0VNsl'
     with closing(opener.open(url)) as data:
         print 'Parsing jbovlaste xml'
         xml = etree.parse(data)

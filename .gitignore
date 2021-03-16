@@ -4,3 +4,4 @@ vlasisku/data/irc.nickserv.gerna.secret
 vlasisku/data/irc.nickserv.valsi.secret
 *.swp
 *.pyc
+.git

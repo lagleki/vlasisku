@@ -1,3 +1,0 @@
-MAILTO=postmaster@digitalkingdom.org
-LANG=en_US.UTF-8
-3 3 * * * /home/sampre_vs/vlasisku/cron_reload_db.sh
