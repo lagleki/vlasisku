@@ -1,10 +1,8 @@
 
-from flask import Module, send_file
-from flaskext.genshi import render_response
+from flask import Blueprint, send_file, render_template
 
 
-general = Module(__name__)
-
+general = Blueprint('general', __name__, template_folder='templates') 
 
 @general.route('/favicon.ico')
 def favicon():
@@ -13,4 +11,4 @@ def favicon():
 
 @general.route('/custom.js')
 def javascript():
-    return render_response('custom.js')
+    return render_template('custom.js')

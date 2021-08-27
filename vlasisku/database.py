@@ -4,13 +4,13 @@ from __future__ import with_statement
 
 from fnmatch import fnmatch
 from os.path import isfile, join, getmtime
-import cPickle as pickle
+import pickle
 import xml.etree.cElementTree as ElementTree
 import re
 from functools import wraps
 
 from Stemmer import Stemmer
-from ordereddict import OrderedDict
+from collections import OrderedDict
 import yaml
 import sys
 
@@ -42,8 +42,8 @@ stem = Stemmer('english').stemWord
 
 
 def load_yaml(filename):
-    with open(filename) as f:
-        return yaml.load(f)
+    with open(filename, encoding='utf-8') as f:
+        return yaml.safe_load(f)
 
 
 def tex2html(tex):
@@ -164,11 +164,11 @@ class Database(object):
                 abort(503)
             self.app.wsgi_app = abort_middleware
             # Use print because app.logger squashes logs if not app.debug
-            print error_message
+            print(error_message)
 
     def _load_from_cache(self, cache_path):
         try:
-            with open(cache_path) as f:
+            with open(cache_path, mode='rb') as f:
                 root = pickle.load(f)
             root.etag = str(getmtime(cache_path))
             return root
@@ -178,7 +178,7 @@ class Database(object):
     def _load_from_source(self, cache_path):
         try:
             root = Root(self)
-            with open(cache_path, 'w') as f:
+            with open(cache_path, mode='wb') as f:
                 pickle.dump(root, f, pickle.HIGHEST_PROTOCOL)
             return root
         except IOError:
@@ -230,9 +230,9 @@ class Root(object):
         self.cll = load_yaml(join(root_path, cll))
         self.terminators = load_yaml(join(root_path, terminators))
 
-        with open(join(root_path, jbovlaste)) as f:
+        with open(join(root_path, jbovlaste), encoding='utf-8') as f:
             xml = ElementTree.parse(f)
-            print 'Rebuilding database; this might take a minute or two.  Printing a . for each thousand entries.'
+            print('Rebuilding database; this might take a minute or two.  Printing a . for each thousand entries.')
             self._load_entries(xml)
             self._load_glosses(xml)
 
@@ -269,7 +269,7 @@ class Root(object):
             matches.update(affix)
 
             classes = self.matches_class(parsed_query['all'], matches)
-            classes += [e for e in self.entries.itervalues()
+            classes += [e for e in self.entries.values()
                           if e.grammarclass
                           and e not in classes
                           and re.split(r'[0-9*]', e.grammarclass)[0] == query]
@@ -344,19 +344,19 @@ class Root(object):
     def suggest(self, prefix):
         suggestions = []
         types = []
-        entries = (e for e in self.entries.iterkeys()
+        entries = (e for e in self.entries.keys()
                      if e.startswith(prefix))
         glosses = (g.gloss for g in self.glosses
                            if g.gloss.startswith(prefix))
-        classes = set(e.grammarclass for e in self.entries.itervalues()
+        classes = set(e.grammarclass for e in self.entries.values()
                                      if e.grammarclass
                                      and e.grammarclass.startswith(prefix))
-        for x in xrange(5):
+        for x in range(5):
             with ignore(StopIteration):
-                suggestions.append(entries.next())
+                suggestions.append(next(entries))
                 types.append(self.entries[suggestions[-1]].type)
             with ignore(StopIteration):
-                gloss = glosses.next()
+                gloss = next(glosses)
                 if ' ' in gloss:
                     suggestions.append('"%s"' % gloss)
                 else:
@@ -370,7 +370,7 @@ class Root(object):
     @selector
     def matches_word(self, queries, exclude):
         return (e for q in queries
-                  for e in self.entries.itervalues()
+                  for e in self.entries.values()
                   if fnmatch(e.word, q))
 
     @selector
@@ -383,7 +383,7 @@ class Root(object):
 
     @selector
     def matches_affix(self, queries, exclude):
-        return (e for e in self.entries.itervalues()
+        return (e for e in self.entries.values()
                   if e not in exclude
                   for q in queries
                   if any(fnmatch(a, q) for a in e.searchaffixes))
@@ -391,14 +391,14 @@ class Root(object):
     @selector
     def matches_class(self, queries, exclude):
         return (e for q in queries
-                  for e in self.entries.itervalues()
+                  for e in self.entries.values()
                   if e not in exclude
                   if q == e.grammarclass)
 
     @selector
     def matches_type(self, queries, exclude):
         return (e for q in queries
-                  for e in self.entries.itervalues()
+                  for e in self.entries.values()
                   if e not in exclude
                   if fnmatch(e.type, q))
 
@@ -446,13 +446,13 @@ class Root(object):
                         entry.searchaffixes.append(entry.word)
                         entry.searchaffixes.append(entry.word[0:4])
 
-                    for child in valsi.getchildren():
+                    for child in valsi:
                         tag, text = child.tag, child.text
                         processors.get(tag, lambda a,b: None)(entry, text)
 
                     self.entries[entry.word] = entry
 
-        for entry in self.entries.itervalues():
+        for entry in self.entries.values():
             if entry.notes:
                 entry.notes = braces2links(entry.notes, self.entries)
 
@@ -463,7 +463,7 @@ class Root(object):
 
     def _process_selmaho(self, entry, text):
         entry.grammarclass = text
-        for grammarclass, terminator in self.terminators.iteritems():
+        for grammarclass, terminator in self.terminators.items():
             if text == grammarclass:
                 entry.terminator = terminator
             if text == terminator:
@@ -518,5 +518,5 @@ class Root(object):
                     gloss.place = word.get('place')
                     self.glosses.append(gloss)
                     add_stems(gloss.gloss, self.gloss_stems, gloss)
-        print ''
-        print 'Rebuild complete.'
+        print('')
+        print('Rebuild complete.')

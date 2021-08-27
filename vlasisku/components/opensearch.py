@@ -1,19 +1,16 @@
 
-from flask import Module, current_app, json
-from flaskext.genshi import render_response
+from flask import Blueprint, current_app, json, render_template
 
 from vlasisku.extensions import database
 
+opensearch = Blueprint('opensearch', __name__, template_folder='templates') 
 
-os = Module(__name__)
-
-
-@os.route('/opensearch/')
-def opensearch():
-    return render_response('opensearch.xml')
+@opensearch.route('/opensearch/')
+def opensearch_render():
+    return render_template('opensearch.xml')
 
 
-@os.route('/suggest/<prefix>')
+@opensearch.route('/suggest/<prefix>')
 def suggest(prefix):
     cls = current_app.response_class
     return cls(json.dumps(database.root.suggest(prefix)),
