@@ -98,7 +98,7 @@ class BotBase(IRCClient):
             self.query(target, query, private)
 
 class FactoryBase(ReconnectingClientFactory):
-    server = 'irc.freenode.net'
+    server = 'irc.lojban.org'
     port = 6667
     channels = ['#lojban', '#ckule', '#balningau', '#vlalinkei']
 
