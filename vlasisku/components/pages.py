@@ -1,13 +1,11 @@
 
-from flask import Module, current_app
-from flaskext.genshi import render_response
+from flask import Blueprint, current_app, render_template
 
 from vlasisku.utils import etag
 
-pages = Module(__name__)
-
+pages = Blueprint('pages', __name__, template_folder='templates') 
 
 @pages.route('/help')
 @etag
 def help():
-    return render_response('help.html', {'website': current_app.config['WEBSITE']})
+    return render_template('help.html', website=current_app.config['WEBSITE'])

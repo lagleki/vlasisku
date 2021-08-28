@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+# This appears to have been stolen from
+# https://github.com/larsks/pqs ??
+
 import sys
 import optparse
 
@@ -91,9 +94,9 @@ def  main():
         p.addchars(('[',']'))
 
     for line in sys.stdin:
-        print '=' * 70
+        print( '=' * 70 )
         for tok in p.parse(line):
-            print str(tok)
+            print( str(tok) )
 
 if __name__ == '__main__':
     main()

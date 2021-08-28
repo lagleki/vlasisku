@@ -1,14 +1,12 @@
-import urllib
-from flask import Module, request, redirect, url_for
-from flaskext.genshi import render_response
+import urllib.parse
+from flask import Blueprint, request, redirect, url_for, render_template
 
 from vlasisku.extensions import database
 from vlasisku.utils import etag, compound2affixes, dameraulevenshtein
 from vlasisku.database import TYPES
 
 
-app = Module(__name__)
-
+app = Blueprint('app', __name__, template_folder='templates')
 
 @app.route('/')
 @etag
@@ -19,14 +17,18 @@ def index():
 
         # Manually escape '.' so it does not get interpreted as part of a
         # relative path.
-        escaped_query = urllib.quote_plus(query_str).replace(".", "%2E")
-        return redirect(url_for("query", query="") + escaped_query)
+        escaped_query = urllib.parse.quote_plus(query_str).replace(".", "%2E")
+        return redirect(url_for("app.query", query="") + escaped_query)
     types = [(t[0], t[1], t[0].replace('-', ' ')) for t in TYPES]
-    classes = set(e.grammarclass for e in db.entries.itervalues()
-                                 if e.grammarclass)
+    classes = set(e.grammarclass for e in db.entries.values()
+                                 # The length restriction here is to
+                                 # throw away particularly dumb
+                                 # "experimental" cmavo
+                                 if e.grammarclass and len(e.grammarclass) <= 13 )
+    classes = sorted(classes)
     scales = db.class_scales
     root = request.script_root
-    return render_response('index.html', locals())
+    return render_template('index.html', **locals())
 
 
 @app.route('/<path:query>')
@@ -37,7 +39,7 @@ def query(query):
     results = db.query(query)
 
     if not results['entry'] and len(results['matches']) == 1:
-        return redirect(url_for('query', query=results['matches'].pop()))
+        return redirect(url_for('app.query', query=results['matches'].pop()))
 
     sourcemetaphor = []
     unknownaffixes = None
@@ -45,14 +47,14 @@ def query(query):
     if not results['matches']:
         sourcemetaphor = [e for a in compound2affixes(query)
                             if len(a) != 1
-                            for e in db.entries.itervalues()
+                            for e in db.entries.values()
                             if a in e.searchaffixes]
 
         unknownaffixes = len(sourcemetaphor) != \
                          len([a for a in compound2affixes(query)
                                 if len(a) != 1])
 
-        similar = [e.word for e in db.entries.itervalues()
+        similar = [e.word for e in db.entries.values()
                           if dameraulevenshtein(query, e.word) == 1]
 
         similar += [g.gloss for g in db.glosses
@@ -60,7 +62,7 @@ def query(query):
                             and dameraulevenshtein(query, g.gloss) == 1]
 
     results.update(locals())
-    return render_response('query.html', results)
+    return render_template('query.html', **results)
 
 
 @app.route('/_complete/')

@@ -4,8 +4,11 @@ import re, time
 
 from twisted.internet.protocol import ReconnectingClientFactory
 from twisted.python import log
+from sys import stderr
+from twisted.python.log import startLogging
+startLogging(stderr)
 from twisted.words.protocols.irc import IRCClient
-from werkzeug import url_quote_plus
+from werkzeug.urls import url_quote_plus
 import os.path
 
 from vlasisku import database
@@ -20,18 +23,24 @@ class BotBase(IRCClient):
 
         try:
             if self.nickname != self.registered_nickname:
-                log.msg('Ghosting with NickServ.')
+                log.msg('In signedOn: Ghosting with NickServ.')
                 self.msg('NickServ', 'GHOST %s %s' % (self.registered_nickname, self.factory.load_password()))
+                time.sleep(1)
 
-            log.msg('Identifying with NickServ.')
-            self.msg('NickServ', 'IDENTIFY %s' % self.factory.load_password())
+                log.msg('In signedOn: Setting to proper nickname.')
+                self.setNick(self.registered_nickname)
+                time.sleep(1)
+
+            log.msg('In signedOn: Identifying with NickServ.')
+            self.msg('NickServ', 'IDENTIFY %s' % self.factory.load_password().strip())
+            time.sleep(1)
         except AttributeError:
             pass # not registered
 
         time.sleep(3)
 
         for c in self.factory.channels:
-            log.msg('Joining %s' % c)
+            log.msg('In signedOn: Joining %s' % c)
             self.join(c)
 
     def userQuit(self, user, quitMessage):
@@ -45,27 +54,55 @@ class BotBase(IRCClient):
         self.nickname = nick
         try:
             if nick == self.registered_nickname:
-                self.msg('NickServ', 'IDENTIFY %s' % self.factory.load_password())
+                log.msg('In nickChanged: Identifying with NickServ.')
+                self.msg('NickServ', 'IDENTIFY %s' % self.factory.load_password().strip())
+                time.sleep(2)
         except AttributeError:
             pass # not registered
 
     # The inherited implementation passes notices to privmsg, causing upset.
     def noticed(self, user, channel, message):
         if channel == self.nickname:
-            log.msg('-%s- %s' % (user, str(type(message)) + message))
+            log.msg('In noticed: -%s- %s' % (user, str(type(message)) + message))
             # Here we do a crappy job of handling the whole "wait for nickserv
             # to do our stuff" thing, now that we have to be registered to join
             # #lojban
             if re.match(r'NickServ', user):
                 # Keep trying to identify until it says we have
-                if not re.match(r'You are already logged in', message):
-                    log.msg('Identifying with NickServ.')
-                    self.msg('NickServ', 'IDENTIFY %s' % self.factory.load_password())
+                if 'has been ghosted' in message:
+                    log.msg('In noticed: Finished ghosting; setting to proper nickname.')
+                    self.setNick(self.registered_nickname)
+                    time.sleep(1)
+                    return
+                elif 'This nickname is registered' in message:
+                    log.msg('In noticed: Identifying with NickServ.')
+                    self.msg('NickServ', 'IDENTIFY %s' % self.factory.load_password().strip())
+                    time.sleep(2)
+                elif 'is not a registered nickname' in message:
+                    log.msg('In noticed: Ghosting with NickServ.')
+                    self.msg('NickServ', 'GHOST %s %s' % (self.registered_nickname, self.factory.load_password()))
+                    time.sleep(1)
 
-                # And when we're done, join channels
-                for c in self.factory.channels:
-                    log.msg('Joining %s' % c)
-                    self.join(c)
+                    log.msg('In noticed: Setting to proper nickname.')
+                    self.setNick(self.registered_nickname)
+                    time.sleep(1)
+                    return
+                elif 'You are already logged in' in message or 'You are now identified for' in message:
+                    # And when we're done, join channels
+                    for c in self.factory.channels:
+                        log.msg('In noticed: Joining %s' % c)
+                        self.join(c)
+                        time.sleep(2)
+                else:
+                    log.msg('In noticed: UNKNOWN NickServ MESSAGE, trying some stuff.')
+                    if self.nickname != self.registered_nickname:
+                        log.msg('In noticed: Ghosting with NickServ.')
+                        self.msg('NickServ', 'GHOST %s %s' % (self.registered_nickname, self.factory.load_password()))
+                        time.sleep(1)
+
+                    log.msg('In noticed: Identifying with NickServ.')
+                    self.msg('NickServ', 'IDENTIFY %s' % self.factory.load_password().strip())
+                    time.sleep(2)
 
     def msg(self, target, message):
         log.msg('<%(nickname)s> %(message)s' %
@@ -125,12 +162,12 @@ class WordBot(BotBase):
         elif query == 'update!':
             def do_update():
                 from contextlib import closing
-                import urllib2
+                import urllib.request
                 import xml.etree.cElementTree as etree
                 import os
 
                 self.msg(target, 'downloading...')
-                opener = urllib2.build_opener()
+                opener = urllib.request.build_opener()
                 opener.addheaders.append(('Cookie', 'jbovlastesessionid=%s' % self.factory.app.config['BOT_KEY']))
                 url = 'http://jbovlaste.lojban.org/export/xml-export.html?lang=en'
                 with closing(opener.open(url)) as data:
@@ -157,7 +194,7 @@ class WordBot(BotBase):
                 lujvos = jvocuhadju(query)
                 tanru = query
                 query = lujvos[0]
-            except ValueError, e:
+            except ValueError as e:
                 self.msg(target, 'error: %s' % e)
                 return
 
@@ -171,7 +208,7 @@ class WordBot(BotBase):
         if entry or field in ['components', 'lujvo']:
             case = lambda x: field == x
             if case('definition'):
-                data = entry.textdefinition.encode('utf-8')
+                data = entry.textdefinition
             elif case('affix'):
                 data = ', '.join('-%s-' % i for i in entry.affixes)
             elif case('class'):
@@ -179,7 +216,7 @@ class WordBot(BotBase):
             elif case('type'):
                 data = entry.type
             elif case('notes'):
-                data = entry.textnotes.encode('utf-8')
+                data = entry.textnotes
             elif case('cll'):
                 data = '  '.join(link for (chap, link) in entry.cll)
             elif case('url'):
@@ -188,7 +225,7 @@ class WordBot(BotBase):
                 entry = query
                 data = ' '.join(e.word for a in compound2affixes(query)
                                 if len(a) != 1
-                                for e in database.root.entries.itervalues()
+                                for e in database.root.entries.values()
                                 if a in e.searchaffixes)
             elif case('lujvo'):
                 data = ', '.join(lujvos)
@@ -230,7 +267,7 @@ class WordBot(BotBase):
                     if len(rafsi) > 0:
                         tanru = [e.word for a in rafsi
                                         if len(a) != 1
-                                        for e in database.root.entries.itervalues()
+                                        for e in database.root.entries.values()
                                         if a in e.searchaffixes]
                         lujvo = jvocuhadju(' '.join(tanru))[0]
                         if lujvo != query:
@@ -254,7 +291,7 @@ class GrammarBot(BotBase):
     def query(self, target, query, private):
         try:
             response = jbofihe(query)
-        except ValueError, e:
+        except ValueError as e:
             response = str(e)
 
         self.msg(target, response)

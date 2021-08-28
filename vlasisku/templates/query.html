@@ -1,91 +1,145 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:xi="http://www.w3.org/2001/XInclude"
-      xmlns:py="http://genshi.edgewall.org/">
-  <xi:include href="layout.html"/>
-  <head>
-    <title>$query</title>
-  </head>
-  <body>
-    <div id="matches">
-      <ol>
-        <li py:if="words"><a href="#word">${len(words)} on word</a></li>
-        <li py:if="glosses"><a href="#gloss">${len(glosses)} on gloss</a></li>
-        <li py:if="affix"><a href="#affix">${len(affix)} on affix</a></li>
-        <li py:if="classes"><a href="#class">${len(classes)} on class</a></li>
-        <li py:if="types"><a href="#type">${len(types)} on type</a></li>
-        <li py:if="definitions"><a href="#definition">${len(definitions)} in definition</a></li>
-        <li py:if="notes"><a href="#notes">${len(notes)} in notes</a></li>
-      </ol>
-    </div>
+{% extends "layout.html" %}
+{% block title %}{{ query }} - {% endblock %}
+{% block content %}
+<div id="matches">
+    <ol>
+        {% if words %}<a href="#word">{{ words|length }} on word</a>{% endif %}
+        {% if glosses %}<a href="#gloss">{{ glosses|length }} on gloss</a>{% endif %}
+        {% if affix %}<a href="#affix">{{ affix|length }} on affix</a>{% endif %}
+        {% if classes %}<a href="#class">{{ classes|length }} on class</a>{% endif %}
+        {% if types %}<a href="#type">{{ types|length }} on type</a>{% endif %}
+        {% if definitions %}<a href="#definition">{{ definitions|length }} in definition</a>{% endif %}
+        {% if notes %}<a href="#notes">{{ notes|length }} in notes</a>{% endif %}
+    </ol>
+</div>
 
-    <p py:if="not matches" class="error">I couldn't find you anything, sorry!</p>
+{% if not matches %}<p class="error">I couldn't find you anything, sorry!</p>{% endif %}
 
-    <p py:if="similar">
-      <strong>Did you mean…</strong>
-      <![CDATA[ ${', '.join('<a href="%s">%s</a>' % (s, s) for s in similar)} ]]>
-    </p>
+{% if similar %}
+<p>
+    <strong>Did you mean…</strong>
+    {% for s in similar %}
+    <a href="{{ s }}">{{ s }}</a>
+    {% if not loop.last %}
+        , 
+        {% endif %}
+    {% endfor %}
+</p>
+{% endif %}
 
-    <p py:if="unknownaffixes" class="error">Compound built with unknown affixes.</p>
+{% if unknownaffixes %}
+<p>Compound built with unknown affixes.</p>
+{% endif %}
 
-    <xi:include href="entrylist.html" py:with="entries=sourcemetaphor; id='source'; title='Components in this compound:'"/>
+{% with %}
+    {% set entries=sourcemetaphor %}
+    {% set id='source' %}
+    {% set title='Components in this compound:' %}
+    {% include 'entrylist.html' %}
+{% endwith %}
 
-    <div py:if="entry" id="entry">
-      <h1>
-        ${Markup(entry.components() or entry)}
+{% if entry %}
+<div id="entry">
+    <h1>
+    {% if entry %}
+        {% if entry.components() %}
+                {{ entry.components()|safe }}
+        {% else %}
+                {{ entry|safe }}
+        {% endif %}
+    {% endif %}
 
-        <sub py:if="entry.grammarclass">
-          <py:for each="grammarclass in entry.terminates">
-            <a href="$grammarclass">$grammarclass</a>…
-          </py:for>
+    {% if entry.grammarclass %}
+        <sub>
+        {% for grammarclass in entry.terminates %}
+                <a href="{{ grammarclass }}">{{ grammarclass }}</a>…
+        {% endfor %}
 
-          <a href="$entry.grammarclass">$entry.grammarclass</a>
+            <a href="{{ entry.grammarclass }}">{{ entry.grammarclass }}</a>
 
-          <py:if test="entry.terminator">
-            …<a href="$entry.terminator">$entry.terminator</a>
-          </py:if>
-        </sub>
+        {% if entry.terminator %}
+                    …<a href="{{ entry.terminator }}">{{ entry.terminator }}</a>
+        {% endif %}
+    </sub>
+    {% endif %}
 
-        <span py:if="entry.affixes" class="affixes">
-          <span py:def="hyphen()" class="hyphen">-</span>
-          ${hyphen()}<py:for each="a in entry.affixes">$a${hyphen()}</py:for>
-        </span>
+    {% if entry.affixes %}
+    <span class="affixes">
+        <span class="hyphen">-</span>{{ entry.affixes|join('<span class="hyphen">-</span>')|safe }}<span class="hyphen">-</span>
+    </span>
 
-        <span class="type">$entry.type</span>
-      </h1>
+    {% endif %}
+        <span class="type">{{ entry.type }}</span>
+    </h1>
 
-      <p class="definition">${Markup(entry.definition)}</p>
-      <p py:if="entry.notes" class="notes">${Markup(entry.notes)}</p>
+    <p class="definition">{{ entry.definition|safe }}</p>
+    {% if entry.notes %}
+    <p class="notes">{{ entry.notes|safe }}</p>
+    {% endif %}        
 
-      <ul class="links">
-        <li py:for="section, link in entry.cll">
-          <a href="$link" title="Relevant section in the reference grammar.">CLL $section</a>
+    <ul class="links">
+        {% for section, link in entry.cll %}
+        <li>
+            <a href="{{ link }}" title="Relevant section in the reference grammar.">CLL {{ section }}</a>
         </li>
-        <li><a href="http://jbovlaste.lojban.org/dict/$entry" title="This entry in the dictonary editor.">jbovlaste</a></li>
-      </ul>
-      <hr/>
-    </div>
+        {% endfor %}
+        <li><a href="http://jbovlaste.lojban.org/dict/{{ entry }}" title="This entry in the dictonary editor.">jbovlaste</a></li>
+    </ul>
+    <hr/>
+</div>
+{% endif %}
 
-    <div py:if="glosses" id="gloss">
-      <h2>On gloss:</h2>
-      <dl>
-        <py:for each="gloss in glosses">
-          <dt>
-            <a href="$gloss.entry">$gloss.entry</a>
-            <py:if test="gloss.sense">in sense "$gloss.sense"</py:if>
-            <py:if test="gloss.place">on place $gloss.place</py:if>
-          </dt>
-          <dd>${Markup(gloss.entry.definition)}</dd>
-        </py:for>
-      </dl>
-      <hr/>
-    </div>
+{% if glosses %}
+<div id="gloss">
+    <h2>On gloss:</h2>
+    <dl>
+        {% for gloss in glosses %}
+            <dt>
+                <a href="{{ gloss.entry }}">{{ gloss.entry }}</a>
+                {% if gloss.sense %}in sense "{{ gloss.sense }}"{% endif %}
+                {% if gloss.place %}on place {{ gloss.place }}{% endif %}
+            </dt>
+            <dd>{{ gloss.entry.definition|safe }}</dd>
+        {% endfor %}
+    </dl>
+    <hr/>
+</div>
+{% endif %}
 
-    <xi:include href="entrylist.html" py:with="entries=words; id='word'; title='On word:'"/>
-    <xi:include href="entrylist.html" py:with="entries=affix; id='affix'; title='On affix form:'"/>
-    <xi:include href="entrylist.html" py:with="entries=classes; id='class'; title='On grammatical class:'"/>
-    <xi:include href="entrylist.html" py:with="entries=types; id='type'; title='On type:'"/>
-    <xi:include href="entrylist.html" py:with="entries=definitions; id='definition'; title='In definition:'"/>
-    <xi:include href="entrylist.html" py:with="entries=notes; id='notes'; title='In notes:'"/>
-  </body>
-</html>
+{% with %}
+    {% set entries=words %}
+    {% set id='word' %}
+    {% set title='On word:' %}
+    {% include 'entrylist.html' %}
+{% endwith %}
+{% with %}
+    {% set entries=affix %}
+    {% set id='affix' %}
+    {% set title='On affix form:' %}
+    {% include 'entrylist.html' %}
+{% endwith %}
+{% with %}
+    {% set entries=classes %}
+    {% set id='class' %}
+    {% set title='On grammatical class:' %}
+    {% include 'entrylist.html' %}
+{% endwith %}
+{% with %}
+    {% set entries=types %}
+    {% set id='type' %}
+    {% set title='On type:' %}
+    {% include 'entrylist.html' %}
+{% endwith %}
+{% with %}
+    {% set entries=definitions %}
+    {% set id='definition' %}
+    {% set title='In definition:' %}
+    {% include 'entrylist.html' %}
+{% endwith %}
+{% with %}
+    {% set entries=notes %}
+    {% set id='notes' %}
+    {% set title='In notes:' %}
+    {% include 'entrylist.html' %}
+{% endwith %}
+{% endblock %}

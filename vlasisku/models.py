@@ -1,4 +1,4 @@
-from utils import compound2affixes
+from vlasisku.utils import compound2affixes
 
 
 class Entry(object):
@@ -68,7 +68,7 @@ class Entry(object):
                 if len(a) == 1:
                     components += a
                 else:
-                    word = [e for e in self.db.entries.itervalues()
+                    word = [e for e in self.db.entries.values()
                               if a in e.searchaffixes]
                     if word:
                         components += '<a href="%s" ' % word[0]

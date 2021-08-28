@@ -8,11 +8,11 @@ from functools import wraps
 from contextlib import contextmanager
 from subprocess import Popen, PIPE
 from threading import Thread
-from Queue import Queue
+from queue import Queue
 import os
 import signal
 
-from pqs import Parser
+from vlasisku.pqs import Parser
 from flask import current_app, request
 import jellyfish
 import jellyfish._jellyfish as py_jellyfish
@@ -76,7 +76,7 @@ def compound2affixes(compound):
     rafsi4 = r'(?:%(c)s%(v)s%(c)s%(c)s|%(cc)s%(v)s%(c)s)' % locals()
     rafsi5 = r'%(rafsi4)s%(v)s' % locals()
 
-    for i in xrange(1, len(compound)/3+1):
+    for i in range(1, int(len(compound)/3+1)):
         reg = r'(?:(%(rafsi3)s)([nry])??|(%(rafsi4)s)(y))' % locals() * i
         reg2 = r'^%(reg)s(%(rafsi3v)s|%(rafsi5)s)$$' % locals()
         matches = re.findall(reg2, compound, re.VERBOSE)
@@ -127,11 +127,6 @@ def dameraulevenshtein(seq1, seq2):
     >>> dameraulevenshtein(u'number e', u'number \u03c0')
     1
     """
-    if isinstance(seq1, str):
-        seq1 = unicode(seq1, 'utf-8')
-    if isinstance(seq2, str):
-        seq2 = unicode(seq2, 'utf-8')
-
     # Fall back onto Python implementation for code points unsupported by the C
     # implementation.
     # https://github.com/jamesturk/jellyfish/issues/55#issuecomment-312509263
@@ -168,17 +163,19 @@ def jbofihe(text):
                     stdin=PIPE, stdout=PIPE, stderr=PIPE)
 
     def target(queue):
-        queue.put(process.communicate(text))
+        queue.put(process.communicate(text.encode('utf-8')))
 
     thread = Thread(target=target, args=(data,))
     thread.start()
     thread.join(1)
 
-    if thread.isAlive():
+    if thread.is_alive():
         os.kill(process.pid, signal.SIGTERM)
         raise ValueError('parser timeout')
 
     output, error = data.get()
+    output = output.decode('utf-8')
+    error = error.decode('utf-8')
     grammatical = not process.returncode # 0=grammatical, 1=ungrammatical
 
     if grammatical:
@@ -228,7 +225,7 @@ def jvocuhadju(text):
     thread.start()
     thread.join(1)
 
-    if thread.isAlive():
+    if thread.is_alive():
         os.kill(process.pid, signal.SIGTERM)
         raise ValueError('jvocuhadju timeout')
 
