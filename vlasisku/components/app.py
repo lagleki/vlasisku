@@ -41,6 +41,12 @@ def query(query):
     if not results['entry'] and len(results['matches']) == 1:
         return redirect(url_for('app.query', query=results['matches'].pop()))
 
+    for entry in results['classes']:
+        if entry.type == 'experimental cmavo':
+            entry.warning = 'exp!'
+        elif entry.type == 'cmavo-compound':
+            entry.warning = 'comp!'
+
     sourcemetaphor = []
     unknownaffixes = None
     similar = None
