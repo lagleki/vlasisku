@@ -12,5 +12,8 @@ jQuery(function ($) {
     });
     $(window).load(function () {
         $('#query').attr('autocomplete', 'off');
+        $('#query').attr('autocapitalize', 'off');
+        $('#query').attr('autocorrect', 'off');
+        $('#query').attr('spellcheck', 'false');
     });
 });
